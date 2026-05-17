@@ -1,0 +1,2643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodBot — AI-Powered Chatbot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+
+<style>
+:root {
+  --brand: #6C47FF;
+  --brand-light: #EDE9FF;
+  --brand-dark: #4A2ECC;
+  --accent: #FF6B35;
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --bg: #F8F7FF;
+  --surface: #FFFFFF;
+  --surface2: #F3F2FB;
+  --border: rgba(108,71,255,0.12);
+  --text: #1A1433;
+  --text2: #5A5376;
+  --text3: #9A92B4;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 4px 24px rgba(108,71,255,0.08);
+  --shadow-lg: 0 12px 48px rgba(108,71,255,0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--brand-light); border-radius: 99px; }
+
+/* ─── AUTH SCREEN ─── */
+#auth-screen {
+  position: fixed; inset: 0; z-index: 300;
+  background: linear-gradient(135deg, #0D0826 0%, #1A0F4F 50%, #0D0826 100%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem;
+}
+
+.auth-bg-orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); opacity: 0.3; pointer-events: none;
+}
+.orb1 { width: 400px; height: 400px; background: #6C47FF; top: -100px; left: -100px; }
+.orb2 { width: 300px; height: 300px; background: #FF6B35; bottom: -80px; right: -80px; }
+.orb3 { width: 200px; height: 200px; background: #22C55E; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+.auth-card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 28px;
+  padding: 2.5rem;
+  width: 100%; max-width: 420px;
+  position: relative; z-index: 1;
+  animation: slideUp 0.5s ease;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+.auth-logo {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 2rem;
+}
+.auth-logo-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--brand); display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.auth-logo h1 { color: #fff; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; }
+.auth-logo span { color: var(--brand); }
+
+.auth-card h2 { color: #fff; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.3rem; }
+.auth-card p { color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 1.75rem; }
+
+.auth-tabs {
+  display: flex; gap: 4px; background: rgba(255,255,255,0.05);
+  border-radius: 10px; padding: 4px; margin-bottom: 1.5rem;
+}
+.auth-tab {
+  flex: 1; padding: 8px; border-radius: 7px; border: none;
+  background: transparent; color: rgba(255,255,255,0.4);
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+}
+.auth-tab.active { background: var(--brand); color: #fff; }
+
+.auth-field { margin-bottom: 1rem; }
+.auth-field label { display: block; color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; }
+.auth-field input {
+  width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 12px 14px; color: #fff;
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+  outline: none; transition: border-color 0.2s;
+}
+.auth-field input::placeholder { color: rgba(255,255,255,0.2); }
+.auth-field input:focus { border-color: var(--brand); }
+
+.auth-btn {
+  width: 100%; padding: 13px; border: none; border-radius: 10px;
+  background: var(--brand); color: #fff;
+  font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700;
+  letter-spacing: 0.03em; cursor: pointer; transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+.auth-btn:hover { background: var(--brand-dark); transform: translateY(-1px); }
+.auth-btn:active { transform: translateY(0); }
+
+.auth-divider { display: flex; align-items: center; gap: 12px; margin: 1.25rem 0; }
+.auth-divider::before, .auth-divider::after { content:''; flex:1; height:1px; background: rgba(255,255,255,0.08); }
+.auth-divider span { color: rgba(255,255,255,0.25); font-size: 0.75rem; }
+
+.auth-google-btn {
+  width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.7);
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all 0.2s;
+}
+.auth-google-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+.auth-error { color: #FF6B6B; font-size: 0.8rem; text-align: center; margin-top: 0.75rem; min-height: 20px; }
+
+/* ─── APP LAYOUT ─── */
+#app { display: none; min-height: 100vh; }
+#app.active { display: flex; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 260px; min-height: 100vh; background: var(--surface);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  flex-shrink: 0;
+}
+.sidebar-logo {
+  padding: 1.5rem 1.5rem 1rem;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-icon {
+  width: 38px; height: 38px; background: var(--brand); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px;
+}
+.logo-text { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+.logo-text span { color: var(--brand); }
+
+.sidebar-section { padding: 1rem 1rem 0; }
+.sidebar-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); padding: 0 0.5rem; margin-bottom: 6px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  transition: all 0.2s; color: var(--text2); font-size: 0.875rem; font-weight: 500;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: var(--brand-light); color: var(--brand); }
+.nav-item.active { background: var(--brand); color: #fff; }
+.nav-item .nav-icon { width: 20px; text-align: center; font-size: 0.9rem; }
+.nav-badge { margin-left: auto; background: var(--accent); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 99px; }
+.nav-badge.green { background: var(--success); }
+
+.sidebar-footer {
+  margin-top: auto; padding: 1rem; border-top: 1px solid var(--border);
+}
+.user-pill {
+  display: flex; align-items: center; gap: 10px; padding: 10px;
+  border-radius: 10px; background: var(--surface2); cursor: pointer;
+  transition: all 0.2s;
+}
+.user-pill:hover { background: var(--brand-light); }
+.user-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--brand); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+}
+.user-info { flex: 1; overflow: hidden; }
+.user-name { font-size: 0.85rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-role { font-size: 0.7rem; color: var(--text3); }
+.logout-btn { color: var(--text3); font-size: 0.85rem; cursor: pointer; transition: color 0.2s; }
+.logout-btn:hover { color: var(--danger); }
+
+/* ─── MAIN CONTENT ─── */
+.main-content { flex: 1; overflow-y: auto; }
+.page { display: none; padding: 2rem; }
+.page.active { display: block; }
+
+.page-header { margin-bottom: 2rem; }
+.page-header h2 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+.page-header p { color: var(--text2); font-size: 0.9rem; margin-top: 4px; }
+
+/* ─── STAT CARDS ─── */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem;
+  position: relative; overflow: hidden; transition: transform 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--card-accent, var(--brand));
+}
+.stat-label { font-size: 0.75rem; font-weight: 500; color: var(--text3); letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 8px; }
+.stat-value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--text); letter-spacing: -0.04em; }
+.stat-delta { font-size: 0.75rem; margin-top: 4px; }
+.stat-delta.up { color: var(--success); }
+.stat-delta.down { color: var(--danger); }
+.stat-icon { position: absolute; top: 1.25rem; right: 1.25rem; font-size: 1.4rem; opacity: 0.15; }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem;
+}
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.card-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text); }
+.card-action { font-size: 0.8rem; color: var(--brand); cursor: pointer; font-weight: 500; }
+
+/* ─── DASHBOARD ─── */
+.dashboard-grid { display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; }
+@media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+/* Chart bars */
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bar { background: var(--brand-light); border-radius: 6px 6px 0 0; width: 100%; transition: all 0.4s ease; cursor: pointer; position: relative; }
+.bar:hover { background: var(--brand); }
+.bar-label { font-size: 0.65rem; color: var(--text3); text-align: center; }
+
+/* Live queries feed */
+.feed-item {
+  display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border);
+  animation: fadeInUp 0.4s ease;
+}
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.feed-avatar {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700; color: #fff;
+}
+.feed-body { flex: 1; }
+.feed-meta { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.feed-name { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+.feed-time { font-size: 0.7rem; color: var(--text3); }
+.feed-msg { font-size: 0.8rem; color: var(--text2); }
+.intent-badge {
+  display: inline-block; font-size: 0.65rem; font-weight: 600; padding: 2px 8px;
+  border-radius: 99px; margin-top: 4px; letter-spacing: 0.02em;
+}
+
+/* ─── CHATBOT PAGE ─── */
+.chat-layout { display: grid; grid-template-columns: 1fr 380px; gap: 1.5rem; }
+@media (max-width: 900px) { .chat-layout { grid-template-columns: 1fr; } }
+
+.chat-window {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); display: flex; flex-direction: column; height: 600px;
+}
+.chat-topbar {
+  padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+}
+.bot-avatar {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--brand);
+  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px;
+}
+.bot-info h4 { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+.status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+.status-online { background: var(--success); animation: pulse 2s infinite; }
+.status-offline { background: var(--danger); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.bot-status { font-size: 0.75rem; color: var(--text3); display: flex; align-items: center; }
+
+.chat-messages { flex: 1; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 12px; }
+.msg { display: flex; gap: 8px; max-width: 82%; animation: fadeInUp 0.3s ease; }
+.msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.msg-avatar {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #fff; font-weight: 700;
+}
+.bot-msg-avatar { background: var(--brand); }
+.user-msg-avatar { background: var(--accent); }
+.msg-bubble {
+  padding: 10px 14px; border-radius: 16px; font-size: 0.875rem; line-height: 1.5;
+}
+.msg.bot .msg-bubble { background: var(--surface2); color: var(--text); border-radius: 4px 16px 16px 16px; }
+.msg.user .msg-bubble { background: var(--brand); color: #fff; border-radius: 16px 4px 16px 16px; }
+
+.quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.quick-btn {
+  padding: 6px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 500;
+  border: 1px solid var(--border); background: var(--surface); color: var(--brand);
+  cursor: pointer; transition: all 0.2s;
+}
+.quick-btn:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+.typing-indicator { display: flex; gap: 5px; align-items: center; padding: 10px 14px; }
+.typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); opacity: 0.4; animation: typingPulse 1.2s infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingPulse { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+
+.chat-input-area {
+  padding: 1rem; border-top: 1px solid var(--border); flex-shrink: 0;
+}
+.chat-input-row { display: flex; gap: 8px; align-items: center; }
+.chat-input {
+  flex: 1; border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.875rem; color: var(--text);
+  background: var(--surface2); outline: none; transition: border-color 0.2s;
+  resize: none; height: 42px;
+}
+.chat-input:focus { border-color: var(--brand); background: var(--surface); }
+.send-btn {
+  width: 42px; height: 42px; border-radius: 10px; border: none;
+  background: var(--brand); color: #fff; cursor: pointer; font-size: 0.9rem;
+  transition: all 0.2s; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+}
+.send-btn:hover { background: var(--brand-dark); transform: scale(1.05); }
+
+/* Handover panel */
+.handover-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem;
+}
+.agent-card {
+  display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface2); margin-bottom: 10px;
+  cursor: pointer; transition: all 0.2s;
+}
+.agent-card:hover { border-color: var(--brand); }
+.agent-card.available .status-dot { background: var(--success); }
+.agent-card.busy .status-dot { background: var(--warning); }
+.agent-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.agent-dept { font-size: 0.72rem; color: var(--text3); }
+.handover-btn {
+  width: 100%; padding: 10px; border: none; border-radius: 10px;
+  background: var(--accent); color: #fff; font-family: 'Syne', sans-serif;
+  font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 6px;
+}
+.handover-btn:hover { filter: brightness(1.1); }
+
+/* ─── ADMIN PANEL ─── */
+.admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 800px) { .admin-grid { grid-template-columns: 1fr; } }
+
+.intent-list { display: flex; flex-direction: column; gap: 8px; }
+.intent-row {
+  display: flex; align-items: center; gap: 10px; padding: 12px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface2);
+  transition: all 0.2s;
+}
+.intent-row:hover { border-color: var(--brand); background: var(--brand-light); }
+.intent-name { font-size: 0.85rem; font-weight: 600; color: var(--text); flex: 1; }
+.intent-count { font-size: 0.75rem; color: var(--text3); }
+.intent-bar-bg { flex: 1; height: 4px; background: var(--border); border-radius: 99px; margin-left: 8px; }
+.intent-bar-fill { height: 100%; border-radius: 99px; background: var(--brand); }
+
+.training-area {
+  border: 1px dashed var(--border); border-radius: 10px; padding: 1rem;
+  background: var(--surface2);
+}
+.training-input {
+  width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.875rem; color: var(--text);
+  background: var(--surface); outline: none; margin-bottom: 8px; transition: border-color 0.2s;
+}
+.training-input:focus { border-color: var(--brand); }
+.train-btn {
+  padding: 9px 20px; border: none; border-radius: 8px;
+  background: var(--brand); color: #fff; font-family: 'Syne', sans-serif;
+  font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+}
+.train-btn:hover { background: var(--brand-dark); }
+
+/* ─── ANALYTICS PAGE ─── */
+.analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 800px) { .analytics-grid { grid-template-columns: 1fr; } }
+
+.topic-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.topic-name { flex: 1; font-size: 0.85rem; color: var(--text); }
+.topic-pct { font-size: 0.8rem; font-weight: 600; color: var(--brand); min-width: 40px; text-align: right; }
+.topic-bar { flex: 2; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.topic-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--brand), #A47EFF); }
+
+/* ─── HISTORY ─── */
+.history-table { width: 100%; border-collapse: collapse; }
+.history-table th { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+.history-table td { font-size: 0.85rem; color: var(--text); padding: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.history-table tr:hover td { background: var(--surface2); }
+.hist-badge { display: inline-block; font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; }
+
+/* ─── TAGS ─── */
+.tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 600; }
+.tag-brand { background: var(--brand-light); color: var(--brand); }
+.tag-success { background: #DCFCE7; color: #166534; }
+.tag-warning { background: #FEF3C7; color: #92400E; }
+.tag-danger { background: #FEE2E2; color: #991B1B; }
+.tag-gray { background: var(--surface2); color: var(--text2); }
+
+/* ─── SETTINGS PAGE ─── */
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: 0.9rem; font-weight: 500; color: var(--text); }
+.settings-sub { font-size: 0.8rem; color: var(--text3); margin-top: 2px; }
+
+.toggle { position: relative; width: 44px; height: 24px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; border-radius: 99px;
+  background: var(--border); cursor: pointer; transition: 0.3s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 18px; height: 18px; left: 3px; bottom: 3px;
+  background: #fff; border-radius: 50%; transition: 0.3s;
+}
+.toggle input:checked + .toggle-slider { background: var(--brand); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+/* ─── FLOATING CHATBOT TRIGGER ─── */
+#chat-fab {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 100;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--brand); color: #fff; border: none;
+  font-size: 1.3rem; cursor: pointer; box-shadow: var(--shadow-lg);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s; animation: fabPop 0.5s ease;
+}
+@keyframes fabPop { from { transform: scale(0); } to { transform: scale(1); } }
+#chat-fab:hover { transform: scale(1.1); background: var(--brand-dark); }
+.fab-ping {
+  position: absolute; top: -2px; right: -2px; width: 14px; height: 14px;
+  background: var(--accent); border-radius: 50%; border: 2px solid var(--bg);
+}
+
+/* ─── FLOATING CHAT POPUP ─── */
+#chat-popup {
+  position: fixed; bottom: 6rem; right: 2rem; z-index: 99;
+  width: 360px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; box-shadow: var(--shadow-lg);
+  display: none; flex-direction: column; height: 600px;
+  animation: popupSlide 0.3s ease;
+}
+@keyframes popupSlide { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+#chat-popup.open { display: flex; }
+
+.popup-topbar {
+  padding: 1rem 1.25rem; background: var(--brand); border-radius: 20px 20px 0 0;
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.popup-topbar .bot-avatar { background: rgba(255,255,255,0.2); }
+.popup-bot-info h4 { color: #fff; font-size: 0.9rem; font-weight: 600; }
+.popup-bot-info p { color: rgba(255,255,255,0.6); font-size: 0.75rem; }
+.popup-close { margin-left: auto; background: rgba(255,255,255,0.15); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+.popup-close:hover { background: rgba(255,255,255,0.3); }
+
+/* Status bar */
+.popup-rasa-status {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 1rem; font-size: 0.72rem; color: var(--text3);
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.popup-rasa-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--danger); flex-shrink: 0; }
+.popup-rasa-dot.online { background: var(--success); animation: popupDotPulse 2s infinite; }
+@keyframes popupDotPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.popup-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 10px; }
+
+/* Quick buttons inside popup */
+.popup-quick-btns {
+  padding: 6px 10px 4px; border-top: 1px solid var(--border);
+  flex-shrink: 0; background: var(--surface);
+}
+.popup-quick-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.popup-qbtn {
+  padding: 5px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 500;
+  border: 1px solid var(--border); background: var(--surface); color: var(--brand);
+  cursor: pointer; transition: all 0.18s; font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.popup-qbtn:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
+#popup-cart-badge {
+  display: none; background: var(--accent); color: #fff;
+  font-size: 0.6rem; font-weight: 700; padding: 1px 5px;
+  border-radius: 99px; margin-left: 3px; vertical-align: middle;
+}
+
+.popup-input-area { padding: 0.75rem; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; }
+.popup-input {
+  flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--text);
+  background: var(--surface2); outline: none; transition: border-color 0.2s;
+}
+.popup-input:focus { border-color: var(--brand); }
+
+/* ─── NLP CONFIDENCE BAR ─── */
+.confidence-bar { height: 6px; background: var(--border); border-radius: 99px; margin-top: 4px; overflow: hidden; }
+.confidence-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+
+/* ─── FIREBASE STATUS ─── */
+.fb-status {
+  display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+  border-radius: 99px; background: var(--surface2); font-size: 0.75rem; font-weight: 500;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  #app.active { flex-direction: column; }
+  .page { padding: 1rem; }
+}
+
+/* ─── LOADING SPINNER ─── */
+.spinner {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 3px solid var(--brand-light); border-top-color: var(--brand);
+  animation: spin 0.8s linear infinite; margin: 2rem auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── TOAST ─── */
+#toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: var(--text); color: #fff; padding: 10px 20px; border-radius: 99px;
+  font-size: 0.85rem; font-weight: 500; z-index: 500; transition: transform 0.3s ease;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Rasa config section */
+.config-input {
+  width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--text);
+  background: var(--surface2); outline: none; transition: border-color 0.2s;
+}
+.config-input:focus { border-color: var(--brand); }
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════
+     AUTH SCREEN
+═══════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-bg-orb orb1"></div>
+  <div class="auth-bg-orb orb2"></div>
+  <div class="auth-bg-orb orb3"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🤖</div>
+      <h1>Support<span>IQ</span></h1>
+    </div>
+    <h2 id="auth-heading">Welcome back</h2>
+    <p id="auth-sub">Sign in to your AI support platform</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+
+    <div id="signup-extra" style="display:none">
+      <div class="auth-field">
+        <label>Full Name</label>
+        <input type="text" id="auth-name" placeholder="Your name">
+      </div>
+    </div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="you@company.com">
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="auth-password" placeholder="••••••••">
+    </div>
+
+    <button class="auth-btn" id="auth-submit-btn" onclick="handleAuth()">
+      <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+    </button>
+
+    <div class="auth-divider"><span>or continue with</span></div>
+    <button class="auth-google-btn" onclick="handleGoogleAuth()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN APP
+═══════════════════════════════════════════ -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🍕</div>
+      <span class="logo-text">Food<span>Bot</span></span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Platform</div>
+      <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+        <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('chatbot')" id="nav-chatbot">
+        <span class="nav-icon"><i class="fa-solid fa-robot"></i></span> AI Chatbot
+        <span class="nav-badge" id="live-count">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('history')" id="nav-history">
+        <span class="nav-icon"><i class="fa-solid fa-clock-rotate-left"></i></span> History
+      </div>
+      <div class="nav-item" onclick="showPage('analytics')" id="nav-analytics">
+        <span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span> Analytics
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:1rem">
+      <div class="sidebar-label">Management</div>
+      <div class="nav-item" onclick="showPage('admin')" id="nav-admin">
+        <span class="nav-icon"><i class="fa-solid fa-sliders"></i></span> Admin Panel
+      </div>
+      <div class="nav-item" onclick="showPage('settings')" id="nav-settings">
+        <span class="nav-icon"><i class="fa-solid fa-gear"></i></span> Settings
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar" id="sidebar-avatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-name">Loading...</div>
+          <div class="user-role" id="sidebar-role">Agent</div>
+        </div>
+        <span class="logout-btn" onclick="handleLogout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT AREA -->
+  <div class="main-content">
+
+    <!-- ── DASHBOARD PAGE ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <h2>Dashboard</h2>
+            <p>Real-time overview of your AI support platform</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card" style="--card-accent:var(--brand)">
+          <div class="stat-label">Total Queries Today</div>
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-delta up" id="stat-total-delta">↑ Loading...</div>
+          <i class="fa-solid fa-comments stat-icon"></i>
+        </div>
+        <div class="stat-card" style="--card-accent:var(--success)">
+          <div class="stat-label">Resolved by AI</div>
+          <div class="stat-value" id="stat-resolved">0%</div>
+          <div class="stat-delta up">AI Resolution Rate</div>
+          <i class="fa-solid fa-circle-check stat-icon"></i>
+        </div>
+        <div class="stat-card" style="--card-accent:var(--warning)">
+          <div class="stat-label">Avg Response Time</div>
+          <div class="stat-value" id="stat-response">0ms</div>
+          <div class="stat-delta">NLP Processing</div>
+          <i class="fa-solid fa-bolt stat-icon"></i>
+        </div>
+        <div class="stat-card" style="--card-accent:var(--accent)">
+          <div class="stat-label">Agent Handovers</div>
+          <div class="stat-value" id="stat-handovers">0</div>
+          <div class="stat-delta down" id="stat-handover-delta">↑ Live count</div>
+          <i class="fa-solid fa-headset stat-icon"></i>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Query Volume (Last 7 Days)</div>
+              <span class="tag tag-brand">Live</span>
+            </div>
+            <div class="bar-chart" id="volume-chart"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Live Conversation Feed</div>
+              <span class="card-action" onclick="clearFeed()">Clear</span>
+            </div>
+            <div id="live-feed" style="max-height:280px;overflow-y:auto">
+              <div style="text-align:center;color:var(--text3);padding:2rem;font-size:0.85rem">
+                <i class="fa-solid fa-satellite-dish" style="font-size:2rem;margin-bottom:0.5rem;display:block;opacity:0.3"></i>
+                Waiting for conversations...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Rasa NLP Server</div>
+              <div id="rasa-status-badge" class="tag tag-warning">Checking...</div>
+            </div>
+            <div style="margin-bottom:1rem">
+              <label style="font-size:0.75rem;color:var(--text3);display:block;margin-bottom:4px">Server URL</label>
+              <input type="text" id="rasa-url-input" class="config-input" value="http://localhost:5005" placeholder="http://localhost:5005">
+            </div>
+            <button class="train-btn" style="width:100%" onclick="checkRasaStatus()">
+              <i class="fa-solid fa-refresh"></i> Check Connection
+            </button>
+            <div style="margin-top:1rem;padding:1rem;background:var(--surface2);border-radius:10px;font-size:0.8rem;color:var(--text2)">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span>Model Loaded</span><span id="rasa-model" style="font-weight:600">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span>NLU Pipeline</span><span style="font-weight:600;color:var(--success)">Rasa 3.1</span>
+              </div>
+              <div style="display:flex;justify-content:space-between">
+                <span>Latency</span><span id="rasa-latency" style="font-weight:600">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Top Intents (Today)</div>
+            </div>
+            <div id="top-intents-dash"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHATBOT PAGE ── -->
+    <div class="page" id="page-chatbot">
+      <div class="page-header">
+        <h2>AI Chatbot Interface</h2>
+        <p>Test your Rasa NLP bot and manage live sessions</p>
+      </div>
+      <div class="chat-layout">
+        <div>
+          <div class="chat-window">
+            <div class="chat-topbar">
+              <div class="bot-avatar"><i class="fa-solid fa-pizza-slice"></i></div>
+              <div class="bot-info">
+                <h4>FoodBot: AI-Powered Chatbot</h4>
+                <div class="bot-status">
+                  <span class="status-dot" id="chat-status-dot" style="background:var(--warning)"></span>
+                  <span id="chat-status-text" style="font-size:0.75rem;color:var(--text3)">Connecting to Rasa...</span>
+                </div>
+              </div>
+              <div style="margin-left:auto;display:flex;gap:8px">
+                <button onclick="clearChatPage()" style="background:var(--surface2);border:none;border-radius:8px;padding:6px 12px;font-size:0.75rem;cursor:pointer;color:var(--text2)">
+                  <i class="fa-solid fa-eraser"></i> Clear
+                </button>
+              </div>
+            </div>
+            <div class="chat-messages" id="chat-page-messages"></div>
+            <div class="chat-input-area">
+              <div class="quick-btns" style="margin-bottom:8px">
+                <button class="quick-btn" onclick="sendPageMessage('hello')">👋 Hello</button>
+                <button class="quick-btn" onclick="sendPageMessage('menu')">📋 Show Menu</button>
+                <button class="quick-btn" onclick="sendPageMessage('show cart')">🛒 View Cart <span id="cartBadgeCount" style="display:none;background:#FF6B35;color:white;border-radius:10px;padding:2px 7px;font-size:10px;font-weight:bold;margin-left:4px;">0</span></button>
+                <button class="quick-btn" onclick="sendPageMessage('confirm order')">✅ Confirm</button>
+                <button class="quick-btn" onclick="sendPageMessage('track my order')">📦 Track</button>
+                <button class="quick-btn" onclick="sendPageMessage('order history')">📜 History</button>
+                <button class="quick-btn" onclick="sendPageMessage('return policy')">🔄 Returns</button>
+                <button class="quick-btn" onclick="sendPageMessage('clear cart')">🗑️ Clear</button>
+                <button class="quick-btn" onclick="sendPageMessage('help')">❓ Help</button>
+                <button class="quick-btn" onclick="sendPageMessage('talk to agent')">🧑 Agent</button>
+              </div>
+              <div class="chat-input-row">
+                <input type="text" class="chat-input" id="chat-page-input" placeholder="Type your message..." onkeydown="if(event.key==='Enter')sendPageMessage()">
+                <button class="send-btn" onclick="sendPageMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- NLP Debug Panel -->
+          <div class="card" style="margin-top:1.5rem">
+            <div class="card-header">
+              <div class="card-title">NLP Debug Panel</div>
+              <span class="tag tag-brand">Real-time</span>
+            </div>
+            <div id="nlp-debug" style="font-size:0.82rem;color:var(--text2)">
+              Send a message to see NLP analysis...
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="handover-panel">
+            <div class="card-header">
+              <div class="card-title">Live Agent Handover</div>
+              <span class="tag tag-success">3 Online</span>
+            </div>
+            <div id="agent-list">
+              <div class="agent-card available">
+                <div class="status-dot"></div>
+                <div>
+                  <div class="agent-name">Priya Sharma</div>
+                  <div class="agent-dept">Billing & Payments</div>
+                </div>
+                <span class="tag tag-success" style="margin-left:auto">Available</span>
+              </div>
+              <div class="agent-card available">
+                <div class="status-dot"></div>
+                <div>
+                  <div class="agent-name">Rahul Mehta</div>
+                  <div class="agent-dept">Technical Support</div>
+                </div>
+                <span class="tag tag-success" style="margin-left:auto">Available</span>
+              </div>
+              <div class="agent-card busy">
+                <div class="status-dot" style="background:var(--warning)"></div>
+                <div>
+                  <div class="agent-name">Neha Patel</div>
+                  <div class="agent-dept">Returns & Refunds</div>
+                </div>
+                <span class="tag tag-warning" style="margin-left:auto">Busy</span>
+              </div>
+            </div>
+            <button class="handover-btn" onclick="initiateHandover()">
+              <i class="fa-solid fa-headset"></i> Escalate to Human Agent
+            </button>
+          </div>
+
+          <div class="card" style="margin-top:1.5rem">
+            <div class="card-header"><div class="card-title">Session Info</div></div>
+            <div style="font-size:0.82rem;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between">
+                <span style="color:var(--text3)">Session ID</span>
+                <span style="font-weight:600;color:var(--brand)" id="session-id-display">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between">
+                <span style="color:var(--text3)">Messages Sent</span>
+                <span style="font-weight:600" id="session-msgs">0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between">
+                <span style="color:var(--text3)">Started</span>
+                <span style="font-weight:600" id="session-start">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between">
+                <span style="color:var(--text3)">Channel</span>
+                <span class="tag tag-brand">Web</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY PAGE ── -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <h2>Conversation History</h2>
+        <p>Securely stored chat logs from Firebase Firestore</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap">
+          <input type="text" class="config-input" id="hist-search" placeholder="🔍 Search conversations..." oninput="filterHistory()" style="flex:1;min-width:200px">
+          <select class="config-input" id="hist-filter" onchange="filterHistory()" style="width:160px">
+            <option value="">All Intents</option>
+            <option value="greeting">Greeting</option>
+            <option value="order_status">Order Status</option>
+            <option value="return_policy">Return Policy</option>
+            <option value="delivery_time">Delivery Time</option>
+            <option value="handover">Handover</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>User</th>
+                <th>Message</th>
+                <th>Intent</th>
+                <th>Confidence</th>
+                <th>Response</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody">
+              <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text3)"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ANALYTICS PAGE ── -->
+    <div class="page" id="page-analytics">
+      <div class="page-header">
+        <h2>Analytics Dashboard</h2>
+        <p>Query trends, intent distribution, and performance metrics</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card" style="--card-accent:var(--brand)">
+          <div class="stat-label">Total Conversations</div>
+          <div class="stat-value" id="an-total">0</div>
+          <i class="fa-solid fa-comments stat-icon"></i>
+        </div>
+        <div class="stat-card" style="--card-accent:var(--success)">
+          <div class="stat-label">Satisfaction Rate</div>
+          <div class="stat-value">94%</div>
+          <i class="fa-solid fa-star stat-icon"></i>
+        </div>
+        <div class="stat-card" style="--card-accent:var(--warning)">
+          <div class="stat-label">Fallback Rate</div>
+          <div class="stat-value">6%</div>
+          <i class="fa-solid fa-triangle-exclamation stat-icon"></i>
+        </div>
+        <div class="stat-card" style="--card-accent:var(--danger)">
+          <div class="stat-label">Escalations</div>
+          <div class="stat-value" id="an-escalations">0</div>
+          <i class="fa-solid fa-headset stat-icon"></i>
+        </div>
+      </div>
+      <div class="analytics-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Intent Distribution</div></div>
+          <div id="intent-dist"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Channel Performance</div></div>
+          <div id="channel-perf"></div>
+        </div>
+        <div class="card" style="grid-column:1/-1">
+          <div class="card-header">
+            <div class="card-title">Response Time Trend</div>
+            <span class="tag tag-brand">Last 7 Days</span>
+          </div>
+          <div style="height:160px;display:flex;align-items:flex-end;gap:6px" id="response-trend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ADMIN PANEL ── -->
+    <div class="page" id="page-admin">
+      <div class="page-header">
+        <h2>Admin Panel</h2>
+        <p>Manage intents, train the chatbot, and configure NLP pipeline</p>
+      </div>
+      <div class="admin-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Intent Management</div>
+            <span class="tag tag-brand" id="intent-total-badge">0 intents</span>
+          </div>
+          <div class="intent-list" id="intent-list"></div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Add Training Example</div></div>
+            <div class="training-area">
+              <select class="training-input" id="train-intent" style="margin-bottom:8px">
+                <option value="greeting">greeting</option>
+                <option value="order_status">order_status</option>
+                <option value="return_policy">return_policy</option>
+                <option value="delivery_time">delivery_time</option>
+                <option value="product_info">product_info</option>
+                <option value="goodbye">goodbye</option>
+              </select>
+              <input type="text" class="training-input" id="train-example" placeholder="Enter new training example...">
+              <input type="text" class="training-input" id="train-response" placeholder="Expected bot response...">
+              <button class="train-btn" onclick="addTrainingExample()">
+                <i class="fa-solid fa-plus"></i> Add & Save
+              </button>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:1.5rem">
+            <div class="card-header"><div class="card-title">🚀 Quick Start - Upload & Train</div></div>
+            <div class="training-area">
+              <div style="background:var(--surface2);border-radius:8px;padding:1rem;margin-bottom:1rem;font-size:0.85rem">
+                <div style="color:var(--text2);margin-bottom:8px">✅ Upload JSON → Auto-load examples → One-click train</div>
+                <div style="color:var(--text3);font-size:0.8rem">No manual adding needed! Upload your training_responses.json file.</div>
+              </div>
+              <input type="file" id="json-upload" accept=".json" style="display:none" onchange="handleJSONUpload(event)">
+              <button class="train-btn" style="background:var(--brand);margin-bottom:8px;width:100%" onclick="document.getElementById('json-upload').click()">
+                <i class="fa-solid fa-upload"></i> Upload JSON File
+              </button>
+              <button class="train-btn" style="background:var(--success);width:100%" onclick="startAutoTraining()" id="auto-train-btn" disabled>
+                <i class="fa-solid fa-brain"></i> Train AI Model (One-Click)
+              </button>
+              <div id="train-status" style="margin-top:8px;font-size:0.8rem;color:var(--text3)"></div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:1.5rem">
+            <div class="card-header"><div class="card-title">ML Model Status</div></div>
+            <div style="font-size:0.82rem;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="color:var(--text3)">NLP Engine</span>
+                <span class="tag tag-brand">Rasa 3.1</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="color:var(--text3)">Pipeline</span>
+                <span style="font-weight:600">WhitespaceTokenizer + DIETClassifier</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="color:var(--text3)">Entity Extractor</span>
+                <span style="font-weight:600">CRFEntityExtractor</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="color:var(--text3)">Training Data</span>
+                <span style="font-weight:600" id="training-count">Loading...</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="color:var(--text3)">Storage</span>
+                <span class="tag tag-success">JSON File + localStorage</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1.5rem">
+        <div class="card-header">
+          <div class="card-title">Saved Training Examples</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--success)">
+            <i class="fa-solid fa-circle-check"></i> Auto-saves to G:\FoodChatbot\
+          </div>
+        </div>
+        <table class="history-table">
+          <thead><tr><th>Intent</th><th>Example</th><th>Response</th><th>Added By</th><th>Time</th><th>Action</th></tr></thead>
+          <tbody id="training-data-table">
+            <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text3)">No training examples yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS PAGE ── -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <h2>Settings</h2>
+        <p>Configure your AI platform preferences</p>
+      </div>
+      <div style="max-width:680px">
+        <div class="card">
+          <div class="card-header"><div class="card-title">NLP & Bot Configuration</div></div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Rasa Server URL</div>
+              <div class="settings-sub">REST webhook for NLP processing</div>
+            </div>
+            <input type="text" class="config-input" id="settings-rasa-url" value="http://localhost:5005" style="width:220px">
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Sender ID</div>
+              <div class="settings-sub">User session identifier</div>
+            </div>
+            <input type="text" class="config-input" id="settings-sender" style="width:220px" readonly>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Confidence Threshold</div>
+              <div class="settings-sub">Minimum NLP confidence to respond</div>
+            </div>
+            <input type="number" class="config-input" value="0.6" min="0" max="1" step="0.05" style="width:100px">
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Features</div></div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Save Conversation History</div>
+              <div class="settings-sub">Store chats in localStorage</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked id="toggle-history"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Live Agent Handover</div>
+              <div class="settings-sub">Enable escalation to human agents</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Multi-language Support</div>
+              <div class="settings-sub">English and Hindi support</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Analytics Tracking</div>
+              <div class="settings-sub">Log query trends to localStorage</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Auto Handover on Fallback</div>
+              <div class="settings-sub">Escalate when bot confidence is low</div>
+            </div>
+            <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Data Storage Configuration</div></div>
+          <div style="background:var(--surface2);border-radius:10px;padding:1rem;font-size:0.82rem;color:var(--text2)">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <span style="color:var(--text3)">Storage Type</span>
+              <span style="font-weight:600">Browser localStorage</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <span style="color:var(--text3)">Training Data</span>
+              <span class="tag tag-success">Local</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <span style="color:var(--text3)">Chat History</span>
+              <span class="tag tag-success">Local</span>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span style="color:var(--text3)">Persistence</span>
+              <span class="tag tag-warning">Browser Only</span>
+            </div>
+          </div>
+          <button class="train-btn" style="margin-top:1rem;width:100%;background:var(--success)" onclick="saveSettings()">
+            <i class="fa-solid fa-floppy-disk"></i> Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main-content -->
+</div><!-- end app -->
+
+<!-- ─── FLOATING CHATBOT ─── -->
+<button id="chat-fab" onclick="toggleChatPopup()">
+  <i class="fa-solid fa-robot"></i>
+  <span class="fab-ping"></span>
+</button>
+
+<div id="chat-popup">
+  <div class="popup-topbar">
+    <div class="bot-avatar"><i class="fa-solid fa-pizza-slice"></i></div>
+    <div class="popup-bot-info">
+      <h4>FoodBot Assistant</h4>
+      <p>AI-Powered Food Ordering Help</p>
+    </div>
+    <button class="popup-close" onclick="toggleChatPopup()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <!-- Status bar -->
+  <div class="popup-rasa-status">
+    <span class="popup-rasa-dot" id="popup-rasa-dot"></span>
+    <span id="popup-rasa-text">Rasa offline — Using AI fallback</span>
+  </div>
+
+  <div class="popup-messages" id="popup-messages"></div>
+
+  <!-- Quick buttons -->
+  <div class="popup-quick-btns">
+    <div class="popup-quick-row">
+      <button class="popup-qbtn" onclick="sendPopupMessage('hello')">👋 Hello</button>
+      <button class="popup-qbtn" onclick="sendPopupMessage('menu')">📋 Show Menu</button>
+      <button class="popup-qbtn" onclick="sendPopupMessage('show cart')">🛒 View Cart<span id="popup-cart-badge">0</span></button>
+      <button class="popup-qbtn" onclick="sendPopupMessage('confirm order')">✅ Confirm</button>
+      <button class="popup-qbtn" onclick="sendPopupMessage('track my order')">📦 Track</button>
+      <button class="popup-qbtn" onclick="sendPopupMessage('order history')">📜 History</button>
+      <button class="popup-qbtn" onclick="sendPopupMessage('return policy')">🔄 Returns</button>
+      <button class="popup-qbtn" onclick="sendPopupMessage('clear cart')">🗑️ Clear</button>
+      <button class="popup-qbtn" onclick="sendPopupMessage('help')">❓ Help</button>
+      <button class="popup-qbtn" onclick="sendPopupMessage('talk to agent')">🧑 Agent</button>
+    </div>
+  </div>
+
+  <div class="popup-input-area">
+    <input type="text" class="popup-input" id="popup-input" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')sendPopupMessage()">
+    <button class="send-btn" onclick="sendPopupMessage()" style="width:38px;height:38px"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// FIREBASE CONFIGURATION
+// ═══════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyDemo-Replace-With-Your-Real-Firebase-Key",
+  authDomain: "supportiq-platform.firebaseapp.com",
+  projectId: "supportiq-platform",
+  storageBucket: "supportiq-platform.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abc123def456",
+  measurementId: "G-XXXXXXXXXX"
+};
+
+let app, auth, db, analytics;
+let currentUser = null;
+let isFirebaseReady = false;
+
+// Demo mode flag — true when Firebase not configured with real keys
+const DEMO_MODE = firebaseConfig.apiKey.includes('Demo');
+
+function initFirebase() {
+  try {
+    if (!DEMO_MODE) {
+      app = firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      db = firebase.firestore();
+      try { analytics = firebase.analytics(); } catch(e) {}
+      isFirebaseReady = true;
+      setupAuthListener();
+    } else {
+      // Demo mode: simulate Firebase
+      console.log('Running in DEMO MODE — replace firebaseConfig with real keys');
+      showDemoMode();
+    }
+  } catch(e) {
+    console.error('Firebase init error:', e);
+    showDemoMode();
+  }
+}
+
+function showDemoMode() {
+  // In demo mode, skip auth screen and show app with a demo user
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('app').classList.add('active');
+  currentUser = { uid: 'demo-user', email: 'demo@foodbot.ai', displayName: 'Demo User' };
+  initAppUI();
+  // No Firebase status - using localStorage only
+}
+
+function updateFbStatus(connected, label) {
+  // Firebase status removed - app uses localStorage
+  return;
+}
+
+// ═══════════════════════════════════════════
+// AUTH LOGIC
+// ═══════════════════════════════════════════
+let authMode = 'login';
+
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t,i) => {
+    t.classList.toggle('active', (i===0 && mode==='login') || (i===1 && mode==='signup'));
+  });
+  document.getElementById('signup-extra').style.display = mode === 'signup' ? 'block' : 'none';
+  document.getElementById('auth-heading').textContent = mode === 'login' ? 'Welcome back' : 'Create account';
+  document.getElementById('auth-sub').textContent = mode === 'login' ? 'Sign in to FoodBot Admin' : 'Get started with FoodBot';
+  document.getElementById('auth-submit-btn').innerHTML = mode === 'login' ? '<i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In' : '<i class="fa-solid fa-user-plus"></i> Create Account';
+  document.getElementById('auth-error').textContent = '';
+}
+
+async function handleAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-password').value;
+  const nameEl = document.getElementById('auth-name');
+  const errEl = document.getElementById('auth-error');
+  errEl.textContent = '';
+
+  if (!email || !pass) { errEl.textContent = 'Please fill all fields.'; return; }
+
+  if (DEMO_MODE) {
+    // Demo: just show app
+    showDemoMode();
+    return;
+  }
+
+  try {
+    if (authMode === 'login') {
+      await auth.signInWithEmailAndPassword(email, pass);
+    } else {
+      const cred = await auth.createUserWithEmailAndPassword(email, pass);
+      if (nameEl && nameEl.value) {
+        await cred.user.updateProfile({ displayName: nameEl.value });
+      }
+    }
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found': 'No account found with this email.',
+      'auth/wrong-password': 'Incorrect password.',
+      'auth/email-already-in-use': 'Email already registered.',
+      'auth/weak-password': 'Password must be at least 6 characters.',
+      'auth/invalid-email': 'Please enter a valid email.'
+    };
+    errEl.textContent = msgs[e.code] || e.message;
+  }
+}
+
+async function handleGoogleAuth() {
+  if (DEMO_MODE) { showDemoMode(); return; }
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+  } catch(e) {
+    document.getElementById('auth-error').textContent = e.message;
+  }
+}
+
+function setupAuthListener() {
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      currentUser = user;
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      document.getElementById('app').classList.add('active');
+      initAppUI();
+      updateFbStatus(true, 'Connected');
+    } else {
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('app').classList.remove('active');
+      document.getElementById('app').style.display = 'none';
+    }
+  });
+}
+
+function handleLogout() {
+  if (!DEMO_MODE && auth) {
+    auth.signOut();
+  } else {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app').classList.remove('active');
+    location.reload();
+  }
+}
+
+// ═══════════════════════════════════════════
+// APP UI INIT
+// ═══════════════════════════════════════════
+const COLORS = ['#6C47FF','#FF6B35','#22C55E','#F59E0B','#EF4444','#06B6D4'];
+let sessionId = 'sess_' + Math.random().toString(36).substr(2, 9);
+let sessionMsgCount = 0;
+let sessionStart = new Date().toLocaleTimeString();
+let totalQueries = 0, totalHandovers = 0;
+let conversationHistory = [];
+let trainingExamples = [];
+
+// ═══════════════════════════════════════════
+// MENU DATABASE
+// ═══════════════════════════════════════════
+const MENU = {
+  rice: [
+    { id: 'khichdi', name: 'Khichdi', price: 80, category: 'Rice' },
+    { id: 'veg_biryani', name: 'Veg Biryani', price: 180, category: 'Rice' },
+    { id: 'fried_rice', name: 'Fried Rice', price: 140, category: 'Rice' },
+    { id: 'jeera_rice', name: 'Jeera Rice', price: 100, category: 'Rice' },
+    { id: 'paneer_rice', name: 'Paneer Rice Bowl', price: 160, category: 'Rice' }
+  ],
+  curry: [
+    { id: 'dal_tadka', name: 'Dal Tadka', price: 120, category: 'Curry' },
+    { id: 'tamatar_sabji', name: 'Tamatar Sabji', price: 110, category: 'Curry' },
+    { id: 'chole', name: 'Chole Curry', price: 130, category: 'Curry' }
+  ],
+  chinese: [
+    { id: 'veg_noodles', name: 'Veg Noodles', price: 130, category: 'Chinese' },
+    { id: 'manchurian', name: 'Manchurian (Dry/Gravy)', price: 150, category: 'Chinese' },
+    { id: 'honey_chilli', name: 'Honey Chilli Potato', price: 140, category: 'Chinese' }
+  ],
+  starters: [
+    { id: 'paneer_tikka', name: 'Paneer Tikka', price: 180, category: 'Starters' }
+  ],
+  thali: [
+    { id: 'punjabi_thali', name: 'Punjabi Thali', price: 150, category: 'Thali' },
+    { id: 'premium_thali', name: 'Premium Veg Thali', price: 220, category: 'Thali' }
+  ],
+  south_indian: [
+    { id: 'paper_dosa', name: 'Paper Dosa', price: 120, category: 'South Indian' },
+    { id: 'masala_dosa', name: 'Masala Dosa', price: 110, category: 'South Indian' },
+    { id: 'idli', name: 'Idli (2 pcs)', price: 60, category: 'South Indian' },
+    { id: 'vada', name: 'Vada (2 pcs)', price: 70, category: 'South Indian' }
+  ],
+  drinks: [
+    { id: 'sweet_lassi', name: 'Sweet Lassi', price: 70, category: 'Drinks' },
+    { id: 'mango_lassi', name: 'Mango Lassi', price: 90, category: 'Drinks' },
+    { id: 'shrikhand', name: 'Shrikhand', price: 100, category: 'Drinks' }
+  ]
+};
+
+// Flatten menu for easy search
+const ALL_ITEMS = Object.values(MENU).flat();
+
+// ═══════════════════════════════════════════
+// ORDER CART SYSTEM
+// ═══════════════════════════════════════════
+let currentCart = [];
+let orderHistory = loadOrderHistory();
+
+function loadOrderHistory() {
+  try {
+    return JSON.parse(localStorage.getItem('order_history')) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveOrderHistory() {
+  try {
+    localStorage.setItem('order_history', JSON.stringify(orderHistory));
+  } catch (e) {
+    console.log('Could not save order history');
+  }
+}
+
+function addToCart(itemId, quantity = 1) {
+  const item = ALL_ITEMS.find(i => i.id === itemId);
+  if (!item) return null;
+  
+  const existing = currentCart.find(c => c.id === itemId);
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    currentCart.push({ ...item, quantity });
+  }
+  return item;
+}
+
+function removeFromCart(itemId) {
+  currentCart = currentCart.filter(c => c.id !== itemId);
+}
+
+function clearCart() {
+  currentCart = [];
+}
+
+function getCartTotal() {
+  return currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+}
+
+function getCartSummary() {
+  if (currentCart.length === 0) {
+    return "🛒 Aapka cart khali hai! Menu dekho aur order karo.";
+  }
+  
+  let summary = "🛒 <strong>Aapka Current Order:</strong>\n\n";
+  currentCart.forEach((item, i) => {
+    summary += `${i + 1}. ${item.name} x${item.quantity} = ₹${item.price * item.quantity}\n`;
+  });
+  summary += `\n<strong>Total: ₹${getCartTotal()}</strong>\n\n`;
+  summary += "✅ Type 'confirm order' to place order\n";
+  summary += "❌ Type 'clear cart' to remove all items";
+  return summary;
+}
+
+function confirmOrder() {
+  if (currentCart.length === 0) {
+    return "❌ Cart empty hai! Pehle kuch order karo.";
+  }
+  
+  const order = {
+    id: 'ORD' + Date.now(),
+    items: [...currentCart],
+    total: getCartTotal(),
+    date: new Date().toLocaleString(),
+    status: 'Confirmed'
+  };
+  
+  orderHistory.unshift(order);
+  if (orderHistory.length > 50) orderHistory.pop();
+  saveOrderHistory();
+  
+  const summary = `✅ <strong>Order Confirmed!</strong>\n\nOrder ID: ${order.id}\n\n` + 
+    currentCart.map((item, i) => `${i + 1}. ${item.name} x${item.quantity} = ₹${item.price * item.quantity}`).join('\n') +
+    `\n\n<strong>Total: ₹${order.total}</strong>\n\n🚚 Delivery 30-35 minutes mein hogi!\n💳 Payment: Cash on Delivery`;
+  
+  clearCart();
+  return summary;
+}
+
+function getOrderHistory() {
+  if (orderHistory.length === 0) {
+    return "📋 Abhi tak koi order nahi hai. Pehla order karo!";
+  }
+  
+  let history = "📋 <strong>Aapke Previous Orders:</strong>\n\n";
+  orderHistory.slice(0, 5).forEach((order, i) => {
+    history += `<strong>${i + 1}. Order #${order.id}</strong>\n`;
+    history += `   Date: ${order.date}\n`;
+    history += `   Items: ${order.items.length}\n`;
+    history += `   Total: ₹${order.total}\n`;
+    history += `   Status: ${order.status}\n\n`;
+  });
+  return history;
+}
+
+function getFullMenu() {
+  let menu = "📖 <strong>Complete Menu:</strong>\n\n";
+  
+  Object.entries(MENU).forEach(([category, items]) => {
+    const categoryName = category.replace('_', ' ').toUpperCase();
+    menu += `<strong>${categoryName}:</strong>\n`;
+    items.forEach(item => {
+      menu += `  • ${item.name} - ₹${item.price}\n`;
+    });
+    menu += '\n';
+  });
+  
+  menu += "💡 <strong>Order karne ke liye:</strong>\n";
+  menu += "Type: 'add biryani' ya '2 dosa add karo'\n";
+  menu += "Cart dekhne: 'show cart' ya 'mera order'\n";
+  menu += "Confirm: 'confirm order' ya 'order confirm karo'";
+  
+  return menu;
+}
+
+function searchMenu(query) {
+  const q = query.toLowerCase();
+  const matches = ALL_ITEMS.filter(item => 
+    item.name.toLowerCase().includes(q) || 
+    item.id.includes(q) ||
+    item.category.toLowerCase().includes(q)
+  );
+  
+  if (matches.length === 0) return null;
+  
+  let result = "🔍 <strong>Search Results:</strong>\n\n";
+  matches.forEach(item => {
+    result += `• ${item.name} - ₹${item.price} (${item.category})\n`;
+  });
+  result += "\n💡 Type 'add [item name]' to add to cart";
+  return result;
+}
+
+// ═══════════════════════════════════════════
+// ORDER COMMAND HANDLER
+// ═══════════════════════════════════════════
+function handleOrderCommands(message) {
+  const m = message.toLowerCase().trim();
+  
+  // Show full menu
+  if (m === 'menu' || m === 'show menu' || m === 'list' || m.includes('kya kya hai') || m === 'items') {
+    return getFullMenu();
+  }
+  
+  // Show cart
+  if (m === 'cart' || m === 'show cart' || m.includes('mera order') || m.includes('kya order') || m === 'my order') {
+    return getCartSummary();
+  }
+  
+  // Clear cart
+  if (m.includes('clear cart') || m.includes('cart khali') || m.includes('remove all') || m.includes('cancel cart')) {
+    clearCart();
+    return "🗑️ Cart khali kar diya! Naya order shuru karo. Type 'menu' to see items.";
+  }
+  
+  // Confirm order
+  if ((m.includes('confirm') && m.includes('order')) || m.includes('order confirm') || m.includes('place order')) {
+    return confirmOrder();
+  }
+  
+  // Order history
+  if (m === 'history' || m.includes('previous order') || m.includes('past order') || m.includes('pehle ka order')) {
+    return getOrderHistory();
+  }
+  
+  // Add to cart - detect patterns like "add biryani", "2 dosa", "paneer tikka do"
+  if (m.includes('add') || m.includes('order') || m.includes('chahiye') || m.includes(' do') || m.includes('dena') || /^\d+/.test(m)) {
+    // Extract quantity and item
+    let quantity = 1;
+    let itemQuery = m;
+    
+    // Check for quantity at start: "2 dosa", "3 idli"
+    const qtyMatch = m.match(/^(\d+)\s+(.+)/);
+    if (qtyMatch) {
+      quantity = parseInt(qtyMatch[1]);
+      itemQuery = qtyMatch[2];
+    }
+    
+    // Remove command words
+    itemQuery = itemQuery.replace(/add|order|chahiye|do|dena|lena|karo/gi, '').trim();
+    
+    // Find matching item (fuzzy search)
+    let item = null;
+    
+    // Try exact name match first
+    item = ALL_ITEMS.find(i => i.name.toLowerCase() === itemQuery);
+    
+    // Try partial name match
+    if (!item) {
+      item = ALL_ITEMS.find(i => i.name.toLowerCase().includes(itemQuery) || itemQuery.includes(i.name.toLowerCase()));
+    }
+    
+    // Try ID match
+    if (!item) {
+      const itemId = itemQuery.replace(/\s+/g, '_');
+      item = ALL_ITEMS.find(i => i.id === itemId);
+    }
+    
+    // Try searching keywords
+    if (!item) {
+      // Special keyword matching
+      if (itemQuery.includes('birya') || itemQuery.includes('briya')) item = ALL_ITEMS.find(i => i.id === 'veg_biryani');
+      else if (itemQuery.includes('khich')) item = ALL_ITEMS.find(i => i.id === 'khichdi');
+      else if (itemQuery.includes('dosa') && itemQuery.includes('masala')) item = ALL_ITEMS.find(i => i.id === 'masala_dosa');
+      else if (itemQuery.includes('dosa') && itemQuery.includes('paper')) item = ALL_ITEMS.find(i => i.id === 'paper_dosa');
+      else if (itemQuery.includes('dosa')) item = ALL_ITEMS.find(i => i.id === 'masala_dosa');
+      else if (itemQuery.includes('idli')) item = ALL_ITEMS.find(i => i.id === 'idli');
+      else if (itemQuery.includes('vada')) item = ALL_ITEMS.find(i => i.id === 'vada');
+      else if (itemQuery.includes('dal')) item = ALL_ITEMS.find(i => i.id === 'dal_tadka');
+      else if (itemQuery.includes('chole')) item = ALL_ITEMS.find(i => i.id === 'chole');
+      else if (itemQuery.includes('thali') && itemQuery.includes('premium')) item = ALL_ITEMS.find(i => i.id === 'premium_thali');
+      else if (itemQuery.includes('thali')) item = ALL_ITEMS.find(i => i.id === 'punjabi_thali');
+      else if (itemQuery.includes('tikka')) item = ALL_ITEMS.find(i => i.id === 'paneer_tikka');
+      else if (itemQuery.includes('noodle')) item = ALL_ITEMS.find(i => i.id === 'veg_noodles');
+      else if (itemQuery.includes('manchur')) item = ALL_ITEMS.find(i => i.id === 'manchurian');
+      else if (itemQuery.includes('fried rice')) item = ALL_ITEMS.find(i => i.id === 'fried_rice');
+      else if (itemQuery.includes('jeera rice')) item = ALL_ITEMS.find(i => i.id === 'jeera_rice');
+      else if (itemQuery.includes('lassi') && itemQuery.includes('mango')) item = ALL_ITEMS.find(i => i.id === 'mango_lassi');
+      else if (itemQuery.includes('lassi')) item = ALL_ITEMS.find(i => i.id === 'sweet_lassi');
+    }
+    
+    if (item) {
+      addToCart(item.id, quantity);
+      return `✅ <strong>${quantity}x ${item.name} (₹${item.price * quantity}) added to cart!</strong>\n\nType 'cart' to view your order.`;
+    } else if (itemQuery.length > 2) {
+      // Search similar items
+      const searchResult = searchMenu(itemQuery);
+      if (searchResult) return searchResult;
+      return `❌ Sorry, "${itemQuery}" not found in menu. Type 'menu' to see all items.`;
+    }
+  }
+  
+  // Remove from cart
+  if (m.includes('remove') || m.includes('hatao')) {
+    const removeMatch = m.match(/remove\s+(.+)|(.+)\s+hatao/i);
+    if (removeMatch) {
+      const itemQuery = (removeMatch[1] || removeMatch[2]).trim();
+      const item = currentCart.find(c => c.name.toLowerCase().includes(itemQuery));
+      if (item) {
+        removeFromCart(item.id);
+        return `❌ ${item.name} removed from cart!\n\n${getCartSummary()}`;
+      }
+    }
+  }
+  
+  return null; // No order command matched
+}
+
+// ═══════════════════════════════════════════
+// AUTO-SAVE TO PROJECT FOLDER (NO localStorage!)
+// ═══════════════════════════════════════════
+const SERVER_URL = 'http://localhost:8080';
+
+async function saveToServer(data) {
+  try {
+    const response = await fetch(`${SERVER_URL}/api/training/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    if (result.success) {
+      console.log(`✅ Auto-saved ${result.count} examples to: ${result.file}`);
+      return true;
+    }
+  } catch (e) {
+    console.log('⚠️ Server not available:', e.message);
+    return false;
+  }
+}
+
+async function loadFromServer() {
+  try {
+    const response = await fetch(`${SERVER_URL}/api/training/load`);
+    if (response.ok) {
+      const data = await response.json();
+      console.log(`✅ Loaded ${data.length} examples from server`);
+      return data;
+    }
+  } catch (e) {
+    console.log('⚠️ Server not available:', e.message);
+    return [];
+  }
+}
+
+// Fallback localStorage functions (for conversation history only)
+function loadFromLocalStorage(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveToLocalStorage(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (e) {
+    console.log('localStorage error:', e);
+  }
+}
+
+const LS_KEY_HISTORY = 'foodbot_conversation_history';
+
+const intents = [
+  {name:'greeting', count:124, color:'var(--brand)'},
+  {name:'order_status', count:89, color:'var(--accent)'},
+  {name:'return_policy', count:67, color:'var(--success)'},
+  {name:'delivery_time', count:54, color:'var(--warning)'},
+  {name:'product_info', count:41, color:'#06B6D4'},
+  {name:'goodbye', count:33, color:'var(--danger)'},
+  {name:'bot_challenge', count:22, color:'#8B5CF6'},
+];
+const maxCount = 124;
+
+function initAppUI() {
+  // Update user info in sidebar
+  const name = currentUser.displayName || currentUser.email.split('@')[0];
+  const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('sidebar-avatar').textContent = initials;
+  document.getElementById('sidebar-name').textContent = name;
+  document.getElementById('sidebar-role').textContent = currentUser.email;
+  document.getElementById('settings-sender').value = sessionId;
+  document.getElementById('session-id-display').textContent = sessionId.slice(0,12)+'...';
+  document.getElementById('session-start').textContent = sessionStart;
+
+  renderVolumeChart();
+  renderIntentList();
+  renderTopIntentsDash();
+  renderAnalytics();
+  renderChannelPerf();
+  renderResponseTrend();
+  loadHistory();
+  loadTrainingData();
+  checkRasaStatus();
+
+  // No initial greeting - wait for user to start conversation
+  // Popup opens empty, ready for user input
+
+  // Simulate live feed
+  simulateLiveFeed();
+}
+
+// ═══════════════════════════════════════════
+// PAGE NAVIGATION
+// ═══════════════════════════════════════════
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  if (page === 'history') loadHistory();
+  if (page === 'analytics') { document.getElementById('an-total').textContent = totalQueries; document.getElementById('an-escalations').textContent = totalHandovers; }
+}
+
+// ═══════════════════════════════════════════
+// RASA STATUS CHECK
+// ═══════════════════════════════════════════
+async function checkRasaStatus() {
+  const url = document.getElementById('rasa-url-input').value || 'http://localhost:5005';
+  const start = performance.now();
+  const badge = document.getElementById('rasa-status-badge');
+  const dot = document.getElementById('chat-status-dot');
+  const text = document.getElementById('chat-status-text');
+  const popupDot  = document.getElementById('popup-rasa-dot');
+  const popupText = document.getElementById('popup-rasa-text');
+
+  try {
+    const res = await fetch(url + '/status', { signal: AbortSignal.timeout(3000) });
+    const latency = Math.round(performance.now() - start);
+    if (res.ok) {
+      const data = await res.json();
+      badge.textContent = 'Online';
+      badge.className = 'tag tag-success';
+      if (dot) { dot.className = 'status-dot status-online'; dot.style.background = ''; }
+      if (text) text.textContent = 'Rasa Core Active';
+      document.getElementById('rasa-latency').textContent = latency + 'ms';
+      document.getElementById('rasa-model').textContent = (data.model_file || 'loaded').split('/').pop().slice(0,20);
+      document.getElementById('stat-response').textContent = latency + 'ms';
+      if (popupDot)  { popupDot.classList.add('online'); }
+      if (popupText) { popupText.textContent = 'Rasa Core Active'; }
+      return;
+    }
+  } catch(e) {}
+  badge.textContent = 'Offline';
+  badge.className = 'tag tag-danger';
+  if (dot) { dot.style.background = 'var(--danger)'; }
+  if (text) text.textContent = 'Rasa offline — Using AI fallback';
+  document.getElementById('rasa-latency').textContent = 'N/A';
+  document.getElementById('rasa-model').textContent = '—';
+  if (popupDot)  { popupDot.classList.remove('online'); }
+  if (popupText) { popupText.textContent = 'Rasa offline — Using AI fallback'; }
+}
+
+// ═══════════════════════════════════════════
+// CHATBOT — DATABASE-FIRST (Firebase training_data)
+// Bot replies are matched from admin's training examples in Firestore.
+// ═══════════════════════════════════════════
+
+// Tokenize + normalize for fuzzy matching
+function _tokens(s) {
+  return (s || '').toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .split(/\s+/).filter(Boolean);
+}
+
+// Jaccard-style similarity between user msg and a training example
+function _similarity(userMsg, example) {
+  const a = new Set(_tokens(userMsg));
+  const b = new Set(_tokens(example));
+  if (!a.size || !b.size) return 0;
+  let inter = 0;
+  a.forEach(t => { if (b.has(t)) inter++; });
+  const union = a.size + b.size - inter;
+  return inter / union;
+}
+
+// Find best matching training example from DB (in-memory `trainingExamples`)
+function findBestDbAnswer(message) {
+  if (!trainingExamples || !trainingExamples.length) return null;
+  let best = null, bestScore = 0;
+  for (const ex of trainingExamples) {
+    if (!ex || !ex.example || !ex.response) continue;
+    // Exact substring boost
+    const exact = message.toLowerCase().includes((ex.example || '').toLowerCase())
+               || (ex.example || '').toLowerCase().includes(message.toLowerCase());
+    const sim = _similarity(message, ex.example) + (exact ? 0.3 : 0);
+    if (sim > bestScore) { bestScore = sim; best = ex; }
+  }
+  // Threshold — under this we say "no match"
+  if (bestScore < 0.25) return null;
+  return { entry: best, score: Math.min(bestScore, 1) };
+}
+
+async function sendToBot(message, onReply) {
+  const start = performance.now();
+  const rasaUrl = (document.getElementById('rasa-url-input')?.value || 'http://localhost:5005').replace(/\/$/, '');
+
+  try {
+    const res = await fetch(rasaUrl + '/webhooks/rest/webhook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sender: sessionId, message: message }),
+      signal: AbortSignal.timeout(8000)
+    });
+
+    if (!res.ok) throw new Error('Rasa HTTP ' + res.status);
+
+    const latency = Math.round(performance.now() - start);
+    const el = document.getElementById('stat-response');
+    if (el) el.textContent = latency + 'ms';
+
+    const data = await res.json();
+
+    // Rasa returns array of response objects: [{text:...}, {image:...}, ...]
+    if (data && data.length > 0) {
+      const combined = data
+        .map(r => r.text || (r.image ? `<img src="${r.image}" style="max-width:100%;border-radius:8px">` : ''))
+        .filter(Boolean)
+        .join('<br>');
+      const intent = { name: 'rasa_nlu', confidence: 1.0 };
+      updateNLPDebug(message, intent, combined);
+      onReply(combined);
+      saveConversation(message, combined, 'rasa_nlu', 1.0);
+    } else {
+      // Rasa online but returned empty response
+      const empty = "🤔 I didn't understand that. Could you rephrase?";
+      updateNLPDebug(message, { name: 'rasa_empty', confidence: 0 }, empty);
+      onReply(empty);
+      saveConversation(message, empty, 'rasa_empty', 0);
+    }
+
+  } catch(e) {
+    // Rasa server unreachable — show error, do NOT fall back to browser logic
+    const errMsg = '⚠️ <strong>Rasa server not responding.</strong><br><small style="color:var(--text3)">Please make sure Rasa is running at: ' + rasaUrl + '</small>';
+    updateNLPDebug(message, { name: 'rasa_error', confidence: 0 }, errMsg);
+    onReply(errMsg);
+  }
+}
+
+// Smart fallback that detects language and responds appropriately
+function getSmartFallback(message) {
+  const isHindi = detectHindi(message);
+  
+  if (isHindi) {
+    // Hindi fallback responses - natural aur helpful
+    const hindiFallbacks = [
+      "🤔 Maaf kijiye, mujhe samajh nahi aaya. Kya aap dobara batayenge?",
+      "😊 Sorry, main ye samajh nahi paya. Menu dekhna chahenge ya kuch aur puchna hai?",
+      "🙏 Kshama kijiye, mera training mein ye nahi hai. Kya main menu dikha du?",
+      "💭 Hmm, ye question mera training mein nahi hai. Human agent se baat karni hai?",
+      "🍽️ Sorry ji! Main ye nahi samjha. Kya order karna hai ya menu chahiye?"
+    ];
+    return hindiFallbacks[Math.floor(Math.random() * hindiFallbacks.length)];
+  } else {
+    // English fallback responses - polite and helpful
+    const englishFallbacks = [
+      "🤔 I'm not sure about that. Could you rephrase or ask something else?",
+      "😊 Sorry, I don't have information on that yet. Would you like to see the menu?",
+      "💭 Hmm, that's not in my training yet. Can I help you with something from our menu?",
+      "🙏 I apologize, I don't understand that question. Would you like to speak with a human agent?",
+      "📖 Sorry, I'm not trained for that query yet. Want to check our menu or place an order?"
+    ];
+    return englishFallbacks[Math.floor(Math.random() * englishFallbacks.length)];
+  }
+}
+
+// Detect if message is in Hindi (checks for Devanagari script or Hindi words)
+function detectHindi(message) {
+  // Check for Devanagari script (Unicode range)
+  const hasDevanagari = /[\u0900-\u097F]/.test(message);
+  
+  // Common Hindi/Hinglish words
+  const hindiWords = [
+    'hai', 'kya', 'aur', 'ka', 'ke', 'ki', 'ko', 'se', 'mein', 'par',
+    'chahiye', 'milega', 'kaise', 'kitna', 'kaha', 'kab', 'kaun',
+    'dena', 'lena', 'karna', 'hona', 'jana', 'aana',
+    'haan', 'nahi', 'thik', 'acha', 'badhiya', 'bilkul',
+    'dhanyavaad', 'shukriya', 'maaf', 'sorry', 'please',
+    'bhai', 'ji', 'sir', 'madam'
+  ];
+  
+  const lowerMsg = message.toLowerCase();
+  const hasHindiWords = hindiWords.some(word => lowerMsg.includes(word));
+  
+  return hasDevanagari || hasHindiWords;
+}
+
+// Load training data from localStorage once and keep in memory
+let _trainingLoaded = false;
+async function ensureTrainingLoaded() {
+  if (_trainingLoaded) return;
+  // Load from server, not localStorage
+  const data = await loadFromServer();
+  if (data && Array.isArray(data)) {
+    trainingExamples = data;
+  }
+  _trainingLoaded = true;
+}
+
+function detectIntent(message) {
+  const m = message.toLowerCase();
+  const patterns = [
+    { name:'greeting', patterns:['hi','hello','hey','good morning','good evening'], confidence:0.95 },
+    { name:'order_status', patterns:['track','order','status','where is my'], confidence:0.9 },
+    { name:'return_policy', patterns:['return','refund','exchange'], confidence:0.92 },
+    { name:'delivery_time', patterns:['delivery','arrive','shipping','when will'], confidence:0.88 },
+    { name:'product_info', patterns:['product','price','detail','about'], confidence:0.85 },
+    { name:'goodbye', patterns:['bye','goodbye','exit','quit'], confidence:0.97 },
+    { name:'bot_challenge', patterns:['are you a bot','who are you','human?'], confidence:0.99 },
+    { name:'handover', patterns:['talk to human','agent','representative','person'], confidence:0.93 },
+  ];
+  for (const p of patterns) {
+    if (p.patterns.some(pat => m.includes(pat))) return { name: p.name, confidence: p.confidence };
+  }
+  return { name: 'fallback', confidence: 0.3 };
+}
+
+const fallbackResponses = {
+  greeting: "👋 Hello! Welcome to FoodBot. How can I help you today?",
+  order_status: "📦 To track your order, please provide your Order ID and I'll check it right away!",
+  return_policy: "🔄 You can return any item within 7 days of delivery. Visit our Returns portal or I can initiate a return for you.",
+  delivery_time: "🚚 Standard delivery takes 30-45 minutes. Express delivery available in 15-20 minutes.",
+  product_info: "🍕 I'd be happy to help with menu items! What would you like to know?",
+  goodbye: "👋 Goodbye! Have a great day. Enjoy your meal!",
+  bot_challenge: "🤖 I'm FoodBot, an AI-powered chatbot for food ordering. I'm here to help!",
+  handover: "🧑 I'll connect you to our support team right away. Please hold for a moment...",
+  fallback: "I understand you need help. Could you please rephrase your question? Or ask about: Menu, Orders, Delivery, or speak to an agent."
+};
+
+function getFallbackResponse(intent) { return fallbackResponses[intent] || fallbackResponses.fallback; }
+
+function updateNLPDebug(message, intent, response) {
+  const debugEl = document.getElementById('nlp-debug');
+  if (!debugEl) return;
+  const confPct = Math.round(intent.confidence * 100);
+  const confColor = confPct > 80 ? 'var(--success)' : confPct > 60 ? 'var(--warning)' : 'var(--danger)';
+  debugEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <div style="color:var(--text3);font-size:0.72rem;margin-bottom:4px">INPUT</div>
+        <div style="font-weight:600;color:var(--text)">"${message.slice(0,40)}${message.length>40?'...':''}"</div>
+      </div>
+      <div>
+        <div style="color:var(--text3);font-size:0.72rem;margin-bottom:4px">DETECTED INTENT</div>
+        <span class="tag tag-brand">${intent.name}</span>
+      </div>
+      <div>
+        <div style="color:var(--text3);font-size:0.72rem;margin-bottom:4px">CONFIDENCE</div>
+        <div style="font-weight:700;color:${confColor}">${confPct}%</div>
+        <div class="confidence-bar"><div class="confidence-fill" style="width:${confPct}%;background:${confColor}"></div></div>
+      </div>
+      <div>
+        <div style="color:var(--text3);font-size:0.72rem;margin-bottom:4px">NLP ENGINE</div>
+        <span class="tag tag-gray">Rasa + Claude Fallback</span>
+      </div>
+    </div>
+  `;
+  // Update live count badge
+  document.getElementById('live-count').textContent = Math.floor(Math.random()*5)+1;
+}
+
+// ═══════════════════════════════════════════
+// CHAT PAGE FUNCTIONS
+// ═══════════════════════════════════════════
+function addChatPageMsg(role, text) {
+  const container = document.getElementById('chat-page-messages');
+  if (!container) return;
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const initials = role === 'user' ? (currentUser?.displayName || 'U')[0].toUpperCase() : '🤖';
+  div.innerHTML = `
+    <div class="msg-avatar ${role === 'bot' ? 'bot-msg-avatar' : 'user-msg-avatar'}" style="${role==='bot'?'':'background:var(--accent)'}">
+      ${role === 'bot' ? '<i class="fa-solid fa-robot" style="font-size:12px"></i>' : initials}
+    </div>
+    <div class="msg-bubble">${text}</div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTypingPage() {
+  const container = document.getElementById('chat-page-messages');
+  const typing = document.createElement('div');
+  typing.className = 'msg bot'; typing.id = 'typing-page';
+  typing.innerHTML = `
+    <div class="msg-avatar bot-msg-avatar"><i class="fa-solid fa-robot" style="font-size:12px"></i></div>
+    <div class="msg-bubble" style="padding:10px 16px">
+      <div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+    </div>`;
+  container.appendChild(typing);
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendPageMessage(preset) {
+  const input = document.getElementById('chat-page-input');
+  const msg = preset || input.value.trim();
+  if (!msg) return;
+  if (!preset) input.value = '';
+
+  // No initial greeting - user starts conversation directly
+
+  addChatPageMsg('user', msg);
+  totalQueries++;
+  sessionMsgCount++;
+  document.getElementById('session-msgs').textContent = sessionMsgCount;
+  document.getElementById('stat-total').textContent = totalQueries;
+
+  showTypingPage();
+  await new Promise(r => setTimeout(r, 600 + Math.random()*800));
+  document.getElementById('typing-page')?.remove();
+
+  if (msg.toLowerCase().includes('agent') || msg.toLowerCase().includes('human') || msg.toLowerCase().includes('representative')) {
+    totalHandovers++;
+    document.getElementById('stat-handovers').textContent = totalHandovers;
+    addChatPageMsg('bot', '🧑 Connecting you to a live agent... <br><small style="color:var(--text3)">Estimated wait: ~2 minutes</small>');
+    addFeedItem(msg, 'handover');
+    return;
+  }
+
+  await sendToBot(msg, (reply) => {
+    addChatPageMsg('bot', reply);
+    addFeedItem(msg, detectIntent(msg).name);
+  });
+}
+
+function clearChatPage() {
+  document.getElementById('chat-page-messages').innerHTML = '';
+  sessionMsgCount = 0;
+  document.getElementById('session-msgs').textContent = '0';
+  document.getElementById('nlp-debug').textContent = 'Send a message to see NLP analysis...';
+}
+
+// ═══════════════════════════════════════════
+// POPUP CHATBOT
+// ═══════════════════════════════════════════
+function toggleChatPopup() {
+  const popup = document.getElementById('chat-popup');
+  const wasOpen = popup.classList.contains('open');
+  popup.classList.toggle('open');
+  if (!wasOpen) {
+    // Show welcome message only on first open
+    const msgs = document.getElementById('popup-messages');
+    if (msgs && msgs.children.length === 0) {
+      setTimeout(() => {
+        addPopupMsg('bot',
+          '👋 <strong>Namaste! Welcome to FoodBot!</strong><br><br>' +
+          'Main aapka food ordering assistant hoon.<br><br>' +
+          '🍕 Menu dekhne ke liye → <em>Show Menu</em> click karein<br>' +
+          '🛒 Order karne ke liye → item ka naam type karein<br><br>' +
+          'Kya help chahiye?'
+        );
+      }, 200);
+    }
+    setTimeout(() => { const inp = document.getElementById('popup-input'); if(inp) inp.focus(); }, 300);
+  }
+}
+
+function updatePopupCartBadge() {
+  try {
+    const cart = JSON.parse(localStorage.getItem('foodbot_cart') || '[]');
+    const total = cart.reduce((s, i) => s + (i.quantity || 0), 0);
+    const badge = document.getElementById('popup-cart-badge');
+    if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'inline' : 'none'; }
+  } catch(e) {}
+}
+
+function addPopupMsg(role, text) {
+  const container = document.getElementById('popup-messages');
+  if (!container) return;
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = `
+    <div class="msg-avatar ${role==='bot'?'bot-msg-avatar':'user-msg-avatar'}" style="${role!=='bot'?'background:var(--accent)':''}">
+      ${role === 'bot' ? '<i class="fa-solid fa-robot" style="font-size:11px"></i>' : '👤'}
+    </div>
+    <div class="msg-bubble">${text}</div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendPopupMessage(preset) {
+  const input = document.getElementById('popup-input');
+  const msg = preset || (input ? input.value.trim() : '');
+  if (!msg) return;
+  if (input && !preset) input.value = '';
+  addPopupMsg('user', msg);
+  totalQueries++;
+
+  // Show typing
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'msg bot'; typingDiv.id = 'popup-typing';
+  typingDiv.innerHTML = `<div class="msg-avatar bot-msg-avatar"><i class="fa-solid fa-robot" style="font-size:11px"></i></div>
+    <div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  document.getElementById('popup-messages').appendChild(typingDiv);
+  document.getElementById('popup-messages').scrollTop = 99999;
+
+  await new Promise(r => setTimeout(r, 700 + Math.random()*600));
+  document.getElementById('popup-typing')?.remove();
+
+  await sendToBot(msg, (reply) => {
+    addPopupMsg('bot', reply);
+    const el = document.getElementById('stat-total');
+    if (el) el.textContent = totalQueries;
+    updatePopupCartBadge();
+  });
+}
+
+// ═══════════════════════════════════════════
+// LOCAL STORAGE — SAVE CONVERSATION
+// ═══════════════════════════════════════════
+function saveConversation(userMsg, botReply, intent, confidence) {
+  const entry = {
+    uid: currentUser?.uid || 'demo',
+    sessionId,
+    userMessage: userMsg,
+    botResponse: botReply,
+    intent,
+    confidence: Math.round(confidence * 100),
+    channel: 'Web',
+    status: intent === 'fallback' ? 'fallback' : 'resolved',
+    timestamp: new Date()
+  };
+  conversationHistory.unshift(entry);
+  if (conversationHistory.length > 200) conversationHistory.pop();
+  
+  // Save to localStorage
+  saveToLocalStorage(LS_KEY_HISTORY, conversationHistory);
+}
+
+// ═══════════════════════════════════════════
+// HISTORY PAGE
+// ═══════════════════════════════════════════
+function loadHistory() {
+  const saved = loadFromLocalStorage(LS_KEY_HISTORY);
+  if (saved && Array.isArray(saved)) {
+    conversationHistory = saved;
+  }
+  renderHistory(conversationHistory);
+}
+
+function renderHistory(data) {
+  const tbody = document.getElementById('history-tbody');
+  if (!data || !data.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text3)">No conversations yet. Start chatting!</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.slice(0, 50).map(row => {
+    const ts = row.timestamp?.toDate ? row.timestamp.toDate() : (row.timestamp instanceof Date ? row.timestamp : new Date());
+    const confColor = row.confidence > 80 ? 'success' : row.confidence > 60 ? 'warning' : 'danger';
+    const statusColor = row.status === 'resolved' ? 'success' : row.status === 'fallback' ? 'warning' : 'gray';
+    return `<tr>
+      <td style="white-space:nowrap;font-size:0.75rem">${ts.toLocaleTimeString()}</td>
+      <td><span style="font-weight:600">${(currentUser?.displayName||currentUser?.email||'User').slice(0,12)}</span></td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${row.userMessage || ''}</td>
+      <td><span class="tag tag-brand">${row.intent || 'unknown'}</span></td>
+      <td><span style="font-weight:600;color:var(--${confColor === 'success' ? 'success' : confColor === 'warning' ? 'warning' : 'danger'})">${row.confidence || 0}%</span></td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)">${(row.botResponse||'').slice(0,60)}</td>
+      <td><span class="tag tag-${statusColor}">${row.status || 'resolved'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterHistory() {
+  const search = document.getElementById('hist-search').value.toLowerCase();
+  const filter = document.getElementById('hist-filter').value;
+  let data = conversationHistory;
+  if (search) data = data.filter(r => (r.userMessage||'').toLowerCase().includes(search) || (r.botResponse||'').toLowerCase().includes(search));
+  if (filter) data = data.filter(r => r.intent === filter);
+  renderHistory(data);
+}
+
+// ═══════════════════════════════════════════
+// ADMIN — TRAINING DATA
+// ═══════════════════════════════════════════
+async function addTrainingExample() {
+  const intent = document.getElementById('train-intent').value;
+  const example = document.getElementById('train-example').value.trim();
+  const response = document.getElementById('train-response').value.trim();
+  if (!example || !response) { showToast('Please fill intent, example, and response'); return; }
+
+  const entry = {
+    intent,
+    example,
+    response,
+    addedBy: currentUser?.email || 'demo',
+    timestamp: new Date().toISOString()
+  };
+  
+  trainingExamples.unshift(entry);
+  _trainingLoaded = true;
+  
+  // AUTO-SAVE to project folder (G:\FoodChatbot\training_responses.json)
+  const saved = await saveToServer(trainingExamples);
+
+  document.getElementById('train-example').value = '';
+  document.getElementById('train-response').value = '';
+  
+  if (saved) {
+    showToast(`✅ Auto-saved to G:\\FoodChatbot\\training_responses.json!`);
+  } else {
+    showToast(`⚠️ Added to memory (server not running)`);
+  }
+  
+  renderTrainingTable();
+  document.getElementById('training-count').textContent = trainingExamples.length + ' examples';
+}
+
+async function loadTrainingData() {
+  // Load from server (G:\FoodChatbot\training_responses.json)
+  const data = await loadFromServer();
+  if (data && Array.isArray(data) && data.length > 0) {
+    trainingExamples = data;
+    _trainingLoaded = true;
+  }
+  renderTrainingTable();
+  document.getElementById('training-count').textContent = trainingExamples.length + ' examples';
+}
+
+// Save training data to server
+async function saveToServer(data) {
+  try {
+    const response = await fetch('http://localhost:8080/api/training', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (response.ok) {
+      console.log('✅ Saved to training_responses.json file');
+    }
+  } catch (e) {
+    console.log('⚠️ Could not save to server:', e.message);
+  }
+}
+
+function renderTrainingTable() {
+  const tbody = document.getElementById('training-data-table');
+  if (!trainingExamples.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text3)">No training examples yet</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = trainingExamples.slice(0,20).map((ex,i) => `
+    <tr>
+      <td><span class="tag tag-brand">${ex.intent}</span></td>
+      <td>${ex.example}</td>
+      <td style="color:var(--text2)">${ex.response}</td>
+      <td>${ex.addedBy}</td>
+      <td style="font-size:0.75rem;color:var(--text3)">${ex.timestamp instanceof Date ? ex.timestamp.toLocaleTimeString() : 'Now'}</td>
+      <td><button onclick="deleteTrainingExample(${i})" style="border:none;background:none;color:var(--danger);cursor:pointer;font-size:0.8rem"><i class="fa-solid fa-trash"></i></button></td>
+    </tr>
+  `).join('');
+}
+
+async function deleteTrainingExample(i) {
+  trainingExamples.splice(i, 1);
+  await saveToServer(trainingExamples);
+  renderTrainingTable();
+  document.getElementById('training-count').textContent = trainingExamples.length + ' examples';
+  showToast('✅ Deleted and auto-saved to project folder');
+}
+
+// ═══════════════════════════════════════════
+// JSON UPLOAD & AUTO-TRAIN
+// ═══════════════════════════════════════════
+async function handleJSONUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (!file.name.endsWith('.json')) {
+    showToast('❌ Please upload a JSON file');
+    return;
+  }
+  
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    
+    if (!Array.isArray(data)) {
+      showToast('❌ Invalid JSON format - must be an array');
+      return;
+    }
+    
+    // Validate structure
+    const valid = data.every(item => item.intent && item.example && item.response);
+    if (!valid) {
+      showToast('❌ Invalid structure - each item must have intent, example, response');
+      return;
+    }
+    
+    // Load into memory
+    trainingExamples = data;
+    _trainingLoaded = true;
+    
+    // Save to server (G:\FoodChatbot\training_responses.json)
+    const saved = await saveToServer(trainingExamples);
+    
+    // Update UI
+    renderTrainingTable();
+    document.getElementById('training-count').textContent = trainingExamples.length + ' examples';
+    
+    // Enable train button
+    document.getElementById('auto-train-btn').disabled = false;
+    document.getElementById('train-status').innerHTML = `<span style="color:var(--success)">✅ ${data.length} examples loaded - Ready to train!</span>`;
+    
+    if (saved) {
+      showToast(`✅ Loaded ${data.length} examples and saved to G:\\FoodChatbot\\`);
+    } else {
+      showToast(`⚠️ Loaded ${data.length} examples (server not running)`);
+    }
+    
+  } catch (e) {
+    showToast('❌ Error parsing JSON: ' + e.message);
+  }
+}
+
+async function startAutoTraining() {
+  const btn = document.getElementById('auto-train-btn');
+  const status = document.getElementById('train-status');
+  
+  if (trainingExamples.length === 0) {
+    showToast('❌ No training data - upload JSON first!');
+    return;
+  }
+  
+  // Save to server first
+  const saved = await saveToServer(trainingExamples);
+  if (!saved) {
+    showToast('❌ Server not running - start auto_save_server.py first!');
+    status.innerHTML = `<span style="color:var(--error)">❌ Server not available</span>`;
+    return;
+  }
+  
+  // Trigger training via server
+  btn.disabled = true;
+  status.innerHTML = `<span style="color:var(--warning)">⏳ Training in progress... (5-10 minutes)</span>`;
+  
+  try {
+    const response = await fetch(`${SERVER_URL}/api/training/train`, {
+      method: 'POST'
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      status.innerHTML = `<span style="color:var(--success)">✅ Training complete! Model ready to use.</span>`;
+      showToast('✅ AI model trained successfully!');
+    } else {
+      status.innerHTML = `<span style="color:var(--error)">❌ Training failed - run manually: python one_click_train.py</span>`;
+      showToast('⚠️ Auto-training not available - train manually');
+    }
+  } catch (e) {
+    status.innerHTML = `<span style="color:var(--text3)">💡 Run manually: cd G:\\FoodChatbot && python one_click_train.py</span>`;
+    showToast('💡 Train manually: python one_click_train.py');
+  }
+  
+  btn.disabled = false;
+}
+
+// ═══════════════════════════════════════════
+// INTENT LIST (ADMIN)
+// ═══════════════════════════════════════════
+function renderIntentList() {
+  const list = document.getElementById('intent-list');
+  document.getElementById('intent-total-badge').textContent = intents.length + ' intents';
+  list.innerHTML = intents.map(i => `
+    <div class="intent-row">
+      <div class="intent-name"><i class="fa-solid fa-tag" style="font-size:0.7rem;margin-right:6px;color:var(--text3)"></i>${i.name}</div>
+      <div class="intent-count">${i.count} hits</div>
+      <div class="intent-bar-bg">
+        <div class="intent-bar-fill" style="width:${Math.round(i.count/maxCount*100)}%;background:${i.color}"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════
+// CHARTS & ANALYTICS
+// ═══════════════════════════════════════════
+function renderVolumeChart() {
+  const chart = document.getElementById('volume-chart');
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const vals = [42,78,56,91,67,84,110];
+  const mx = Math.max(...vals);
+  chart.innerHTML = days.map((d,i) => `
+    <div class="bar-col">
+      <div class="bar" style="height:${Math.round(vals[i]/mx*120)}px" title="${vals[i]} queries"></div>
+      <span class="bar-label">${d}</span>
+    </div>
+  `).join('');
+}
+
+function renderTopIntentsDash() {
+  const el = document.getElementById('top-intents-dash');
+  el.innerHTML = intents.slice(0,5).map(i => `
+    <div class="topic-row">
+      <span class="topic-name">${i.name}</span>
+      <div class="topic-bar"><div class="topic-fill" style="width:${Math.round(i.count/maxCount*100)}%"></div></div>
+      <span class="topic-pct">${Math.round(i.count/maxCount*100)}%</span>
+    </div>
+  `).join('');
+}
+
+function renderAnalytics() {
+  const el = document.getElementById('intent-dist');
+  el.innerHTML = intents.map(i => `
+    <div class="topic-row">
+      <span class="topic-name">${i.name}</span>
+      <div class="topic-bar" style="flex:2"><div class="topic-fill" style="width:${Math.round(i.count/maxCount*100)}%;background:${i.color}"></div></div>
+      <span class="topic-pct">${i.count}</span>
+    </div>
+  `).join('');
+}
+
+function renderChannelPerf() {
+  const el = document.getElementById('channel-perf');
+  const channels = [
+    {name:'Web Chat', pct:68, color:'var(--brand)'},
+    {name:'Mobile App', pct:24, color:'var(--success)'},
+    {name:'API Direct', pct:8, color:'var(--warning)'},
+  ];
+  el.innerHTML = channels.map(c => `
+    <div class="topic-row">
+      <span class="topic-name">${c.name}</span>
+      <div class="topic-bar"><div class="topic-fill" style="width:${c.pct}%;background:${c.color}"></div></div>
+      <span class="topic-pct">${c.pct}%</span>
+    </div>
+  `).join('');
+}
+
+function renderResponseTrend() {
+  const el = document.getElementById('response-trend');
+  const vals = [320,180,240,160,290,210,195];
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const mx = Math.max(...vals);
+  el.innerHTML = vals.map((v,i) => `
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+      <span style="font-size:0.65rem;color:var(--text3)">${v}ms</span>
+      <div style="width:100%;background:var(--brand-light);border-radius:6px 6px 0 0;height:${Math.round(v/mx*130)}px;transition:0.4s"></div>
+      <span style="font-size:0.65rem;color:var(--text3)">${days[i]}</span>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════
+// LIVE FEED SIMULATION
+// ═══════════════════════════════════════════
+const sampleUsers = ['Arjun S.','Priya M.','Kavya P.','Rohan D.','Ananya T.','Dev K.','Meera R.'];
+const sampleMsgs = [
+  { msg: 'Where is my order #1234?', intent: 'order_status' },
+  { msg: 'How do I return my product?', intent: 'return_policy' },
+  { msg: 'When will my order arrive?', intent: 'delivery_time' },
+  { msg: 'Hello, need help!', intent: 'greeting' },
+  { msg: 'Can I talk to a human?', intent: 'handover' },
+  { msg: 'Tell me about this product', intent: 'product_info' },
+];
+
+function addFeedItem(msg, intent) {
+  const feed = document.getElementById('live-feed');
+  if (!feed) return;
+  // Clear placeholder
+  if (feed.querySelector('div[style*="text-align:center"]')) feed.innerHTML = '';
+  const user = sampleUsers[Math.floor(Math.random()*sampleUsers.length)];
+  const color = COLORS[Math.floor(Math.random()*COLORS.length)];
+  const badgeColor = intent === 'handover' ? 'danger' : intent === 'order_status' ? 'brand' : intent === 'return_policy' ? 'warning' : 'gray';
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.innerHTML = `
+    <div class="feed-avatar" style="background:${color}">${user.slice(0,1)}</div>
+    <div class="feed-body">
+      <div class="feed-meta">
+        <span class="feed-name">${user}</span>
+        <span class="feed-time">${new Date().toLocaleTimeString()}</span>
+      </div>
+      <div class="feed-msg">${msg.slice(0,50)}${msg.length>50?'...':''}</div>
+      <span class="intent-badge" style="background:var(--brand-light);color:var(--brand)">${intent}</span>
+    </div>
+  `;
+  feed.insertBefore(item, feed.firstChild);
+  if (feed.children.length > 8) feed.removeChild(feed.lastChild);
+}
+
+function simulateLiveFeed() {
+  setInterval(() => {
+    if (Math.random() > 0.6) {
+      const sample = sampleMsgs[Math.floor(Math.random()*sampleMsgs.length)];
+      addFeedItem(sample.msg, sample.intent);
+      totalQueries++;
+      document.getElementById('stat-total').textContent = totalQueries;
+      document.getElementById('live-count').textContent = Math.floor(Math.random()*6)+1;
+    }
+  }, 3500);
+  // Initial stats
+  document.getElementById('stat-resolved').textContent = '87%';
+  document.getElementById('stat-total-delta').textContent = '↑ 12% from yesterday';
+  document.getElementById('stat-handover-delta').textContent = '↑ Live monitoring';
+}
+
+function clearFeed() {
+  document.getElementById('live-feed').innerHTML = `<div style="text-align:center;color:var(--text3);padding:2rem;font-size:0.85rem">Feed cleared</div>`;
+}
+
+// ═══════════════════════════════════════════
+// EXPORT TRAINING DATA TO JSON FILE
+// ═══════════════════════════════════════════
+function exportTrainingData() {
+  if (!trainingExamples || trainingExamples.length === 0) {
+    showToast('❌ No training data to export');
+    return;
+  }
+
+  // Clean data - remove UI-only fields, keep only training essentials
+  const cleanData = trainingExamples.map(ex => ({
+    intent: ex.intent || 'unknown',
+    example: ex.example || '',
+    response: ex.response || ''
+  }));
+
+  // Create JSON blob
+  const dataStr = JSON.stringify(cleanData, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  
+  // Download file
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'training_responses.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  showToast(`✅ Exported ${cleanData.length} training examples to JSON file!`);
+}
+
+// ═══════════════════════════════════════════
+// HANDOVER
+// ═══════════════════════════════════════════
+function initiateHandover() {
+  totalHandovers++;
+  document.getElementById('stat-handovers').textContent = totalHandovers;
+  addChatPageMsg('bot', '🧑‍💼 <strong>Escalating to live agent...</strong><br><small>Priya Sharma (Billing) will join in ~2 min</small>');
+  showToast('✅ Handover initiated — Priya Sharma notified');
+  addFeedItem('Requested human agent', 'handover');
+}
+
+// ═══════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════
+function saveSettings() {
+  const rasaUrl = document.getElementById('settings-rasa-url').value;
+  document.getElementById('rasa-url-input').value = rasaUrl;
+  if (isFirebaseReady && db) {
+    db.collection('settings').doc(currentUser.uid).set({ rasaUrl }, { merge: true });
+  }
+  showToast('✅ Settings saved successfully!');
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  initFirebase();
+  // Check Rasa periodically
+  setInterval(checkRasaStatus, 15000);
+  // Keep popup cart badge in sync
+  setInterval(updatePopupCartBadge, 2000);
+});
+</script>
+</body>
+</html>
