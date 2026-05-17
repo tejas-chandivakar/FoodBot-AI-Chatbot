@@ -1,0 +1,109 @@
+version: "3.1"
+
+nlu:
+
+- intent: greeting
+  examples: |
+    - hello
+    - hi
+    - hey
+    - namaste
+
+- intent: show_menu
+  examples: |
+    - menu
+    - show menu
+    - food menu
+
+- intent: order_biryani
+  examples: |
+    - add biryani
+    - biryani
+
+- intent: order_dosa
+  examples: |
+    - add dosa
+    - dosa
+
+- intent: order_thali
+  examples: |
+    - add thali
+    - thali
+
+- intent: order_rice
+  examples: |
+    - add rice
+    - rice
+
+- intent: order_chinese
+  examples: |
+    - add noodles
+    - noodles
+
+- intent: order_drinks
+  examples: |
+    - add lassi
+    - mango lassi
+
+- intent: show_cart
+  examples: |
+    - show cart
+    - cart
+    - my cart
+
+- intent: clear_cart
+  examples: |
+    - clear cart
+    - empty cart
+
+- intent: confirm_order
+  examples: |
+    - confirm order
+    - confirm
+    - place order
+
+- intent: track_order
+  examples: |
+    - track order
+    - track my order
+    - order status
+
+- intent: order_history
+  examples: |
+    - order history
+    - previous orders
+    - my orders
+
+- intent: payment_method
+  examples: |
+    - payment method
+    - payment
+    - cod
+
+- intent: delivery_time
+  examples: |
+    - delivery time
+    - order delivery
+
+- intent: return_policy
+  examples: |
+    - return policy
+    - refund policy
+    - returns
+
+- intent: help
+  examples: |
+    - help
+    - commands
+    - how to order
+
+- intent: talk_to_agent
+  examples: |
+    - talk to agent
+    - customer care
+    - support
+
+- intent: goodbye
+  examples: |
+    - bye
+    - goodbye

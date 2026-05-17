@@ -1,0 +1,117 @@
+version: "3.1"
+
+stories:
+
+# Greeting
+- story: greeting
+  steps:
+    - intent: greeting
+    - action: utter_greeting
+
+# Menu
+- story: menu
+  steps:
+    - intent: show_menu
+    - action: utter_show_menu
+
+# Add Biryani
+- story: add biryani
+  steps:
+    - intent: order_biryani
+    - action: action_add_to_cart
+
+# Add Dosa
+- story: add dosa
+  steps:
+    - intent: order_dosa
+    - action: action_add_to_cart
+
+# Add Thali
+- story: add thali
+  steps:
+    - intent: order_thali
+    - action: action_add_to_cart
+
+# Add Rice
+- story: add rice
+  steps:
+    - intent: order_rice
+    - action: action_add_to_cart
+
+# Add Chinese
+- story: add noodles
+  steps:
+    - intent: order_chinese
+    - action: action_add_to_cart
+
+# Add Drinks
+- story: add drinks
+  steps:
+    - intent: order_drinks
+    - action: action_add_to_cart
+
+# Show Cart
+- story: show cart
+  steps:
+    - intent: show_cart
+    - action: action_show_cart
+
+# Clear Cart
+- story: clear cart
+  steps:
+    - intent: clear_cart
+    - action: action_clear_cart
+
+# Confirm Order
+- story: confirm order
+  steps:
+    - intent: confirm_order
+    - action: action_confirm_order
+
+# Order History
+- story: order history
+  steps:
+    - intent: order_history
+    - action: action_order_history
+
+# Track Order
+- story: track order
+  steps:
+    - intent: track_order
+    - action: utter_track_order
+
+# Return Policy
+- story: return policy
+  steps:
+    - intent: return_policy
+    - action: utter_return_policy
+
+# Help
+- story: help
+  steps:
+    - intent: help
+    - action: utter_help
+
+# Payment
+- story: payment
+  steps:
+    - intent: payment_method
+    - action: utter_payment_method
+
+# Delivery
+- story: delivery
+  steps:
+    - intent: delivery_time
+    - action: utter_delivery_time
+
+# Agent
+- story: talk to agent
+  steps:
+    - intent: talk_to_agent
+    - action: utter_talk_to_agent
+
+# Goodbye
+- story: goodbye
+  steps:
+    - intent: goodbye
+    - action: utter_goodbye

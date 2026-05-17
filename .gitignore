@@ -1,0 +1,7 @@
+__pycache__/
+models/
+.rasa/
+*.pyc
+.env
+venv/
+rasaenv/

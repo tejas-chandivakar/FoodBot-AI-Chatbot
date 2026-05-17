@@ -1,0 +1,130 @@
+version: "3.1"
+
+intents:
+  - greeting
+  - show_menu
+  - order_biryani
+  - order_dosa
+  - order_thali
+  - order_rice
+  - order_chinese
+  - order_drinks
+  - show_cart
+  - clear_cart
+  - confirm_order
+  - cancel_order
+  - track_order
+  - order_history
+  - payment_method
+  - delivery_time
+  - return_policy
+  - help
+  - talk_to_agent
+  - goodbye
+  - nlu_fallback
+
+slots:
+
+  cart_items:
+    type: any
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+  total_amount:
+    type: float
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+  order_history:
+    type: any
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+responses:
+
+  utter_greeting:
+    - text: |
+        👋 Hello! Welcome to FoodBot!
+
+        🍽️ I can help you order delicious food.
+
+  utter_show_menu:
+    - text: |
+        📋 Our Menu
+
+        🍚 Veg Biryani - ₹180
+        🥞 Masala Dosa - ₹110
+        🍽️ Punjabi Thali - ₹150
+        🍛 Fried Rice - ₹140
+        🥡 Veg Noodles - ₹130
+        🥤 Mango Lassi - ₹90
+
+  utter_track_order:
+    - text: |
+        📦 Track Your Order
+
+        Status: 🍳 Preparing
+
+        ETA: 30–45 minutes
+
+  utter_return_policy:
+    - text: |
+        🔄 Return Policy
+
+        • Full refund available
+        • Replacement available
+        • Contact support within 30 minutes
+
+        📞 Support: +91 9876543210
+
+  utter_help:
+    - text: |
+        ❓ How to Order
+
+        1️⃣ Type menu
+
+        2️⃣ Type add biryani
+
+        3️⃣ Type show cart
+
+        4️⃣ Type confirm order
+
+        5️⃣ Type order history
+
+  utter_payment_method:
+    - text: |
+        💵 Payment Method
+
+        • Cash on Delivery (COD)
+
+  utter_delivery_time:
+    - text: |
+        🚚 Delivery Time
+
+        ETA: 30–45 minutes
+
+  utter_talk_to_agent:
+    - text: |
+        👨 Connecting to live support...
+
+  utter_goodbye:
+    - text: |
+        👋 Thank you for using FoodBot!
+
+  utter_default:
+    - text: |
+        ❌ Sorry, I didn't understand that.
+
+actions:
+  - action_add_to_cart
+  - action_show_cart
+  - action_clear_cart
+  - action_confirm_order
+  - action_order_history
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

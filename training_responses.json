@@ -1,0 +1,577 @@
+[
+  {
+    "intent": "greeting",
+    "example": "Hello",
+    "response": "🙏 Namaste! Welcome to our restaurant. Kya aapko menu dekhna hai ya order karna hai?"
+  },
+  {
+    "intent": "greeting",
+    "example": "Hi there",
+    "response": "👋 Hello! Humare paas bahut tasty dishes hain. Kya order karein?"
+  },
+  {
+    "intent": "greeting",
+    "example": "Namaste",
+    "response": "🙏 Namaste ji! Aaj kya khane ka mann hai?"
+  },
+  {
+    "intent": "greeting",
+    "example": "Good morning",
+    "response": "🌅 Good morning! Breakfast ke liye Idli-Vada ya Dosa available hai!"
+  },
+  {
+    "intent": "greeting",
+    "example": "Good evening",
+    "response": "🌆 Good evening! Dinner ke liye kya order karein - Thali ya Biryani?"
+  },
+  {
+    "intent": "show_menu",
+    "example": "Show me the menu",
+    "response": "📖 Hamare menu mein hai:\n\n🍛 Rice Items: Khichdi ₹80, Veg Biryani ₹180, Jeera Rice ₹100\n🍲 Curries: Dal Tadka ₹120, Chole ₹130, Tamatar Sabji ₹110\n🥟 Chinese: Fried Rice ₹140, Manchurian ₹150, Noodles ₹130\n🍢 Starters: Paneer Tikka ₹180, Honey Chilli Potato ₹140\n🥘 Thalis: Punjabi ₹150, Premium ₹220\n🥞 South Indian: Masala Dosa ₹110, Idli ₹60, Vada ₹70\n🥤 Drinks: Lassi ₹70, Mango Lassi ₹90, Shrikhand ₹100"
+  },
+  {
+    "intent": "show_menu",
+    "example": "Menu dikhao",
+    "response": "📖 Yeh raha menu:\n\n🍛 Rice: Khichdi ₹80, Biryani ₹180, Jeera Rice ₹100\n🍲 Sabzi: Dal Tadka ₹120, Chole ₹130, Tamatar ₹110\n🥟 Chinese: Fried Rice ₹140, Manchurian ₹150\n🍢 Starters: Paneer Tikka ₹180, Honey Chilli Potato ₹140\n🥘 Thali: Punjabi ₹150, Premium ₹220\n🥞 South Indian: Dosa ₹110, Idli ₹60, Vada ₹70\n🥤 Drinks: Lassi ₹70, Mango Lassi ₹90"
+  },
+  {
+    "intent": "show_menu",
+    "example": "What do you have",
+    "response": "😊 We have Rice dishes, Curries, Chinese food, South Indian, Thalis, and Drinks. Kya dekhna pasand karenge?"
+  },
+  {
+    "intent": "show_menu",
+    "example": "Kya kya hai",
+    "response": "🍽️ Hamare paas hai - Rice items, Sabzi, Chinese, South Indian, Thali aur Drinks. Sab fresh hai!"
+  },
+  {
+    "intent": "show_menu",
+    "example": "Menu please",
+    "response": "📋 Menu ready hai! Rice, Curry, Chinese, Dosa, Thali - sab kuch hai. Kya order karein?"
+  },
+  {
+    "intent": "order_biryani",
+    "example": "I want biryani",
+    "response": "🍚 Great choice! Veg Biryani ₹180. Kya confirm karu?"
+  },
+  {
+    "intent": "order_biryani",
+    "example": "Biryani milegi",
+    "response": "✅ Bilkul! Veg Biryani ₹180. Raita bhi chahiye?"
+  },
+  {
+    "intent": "order_biryani",
+    "example": "Biryani chahiye",
+    "response": "🍛 Zaroor! Veg Biryani ₹180. Order confirm karu?"
+  },
+  {
+    "intent": "order_biryani",
+    "example": "One biryani please",
+    "response": "👍 Perfect! Veg Biryani ₹180. Delivery 30 minutes mein hogi!"
+  },
+  {
+    "intent": "order_biryani",
+    "example": "Biryani do",
+    "response": "🍚 Done! Veg Biryani ₹180 ka order ho gaya. Kuch aur?"
+  },
+  {
+    "intent": "order_thali",
+    "example": "Thali available hai",
+    "response": "🥘 Haan ji! 2 options hain:\n• Punjabi Thali ₹150\n• Premium Veg Thali ₹220\nKaunsa chahiye?"
+  },
+  {
+    "intent": "order_thali",
+    "example": "Give me thali",
+    "response": "🍽️ Sure! Punjabi Thali ₹150 ya Premium Thali ₹220? Dono mein 4-5 items aate hain!"
+  },
+  {
+    "intent": "order_thali",
+    "example": "Thali order karna hai",
+    "response": "👌 Thali perfect choice hai! Punjabi (₹150) ya Premium (₹220)? Premium mein extra items hain!"
+  },
+  {
+    "intent": "order_thali",
+    "example": "Punjabi thali",
+    "response": "😋 Punjabi Thali ₹150 - ismein roti, sabzi, dal, rice, raita aata hai. Confirm?"
+  },
+  {
+    "intent": "order_thali",
+    "example": "Premium thali do",
+    "response": "⭐ Premium Veg Thali ₹220 - best choice! Special items ke saath. Order confirm?"
+  },
+  {
+    "intent": "order_dosa",
+    "example": "Dosa hai",
+    "response": "🥞 Haan bilkul! Paper Dosa ₹120 ya Masala Dosa ₹110. Kaunsa prefer karenge?"
+  },
+  {
+    "intent": "order_dosa",
+    "example": "I want masala dosa",
+    "response": "👍 Masala Dosa ₹110! Sambar aur chutney ke saath. Confirm karu?"
+  },
+  {
+    "intent": "order_dosa",
+    "example": "Masala dosa chahiye",
+    "response": "🥞 Perfect! Masala Dosa ₹110. Crispy aur tasty! Order place karu?"
+  },
+  {
+    "intent": "order_dosa",
+    "example": "Paper dosa milega",
+    "response": "✅ Haan! Paper Dosa ₹120 - bahut crispy! Ek ya do?"
+  },
+  {
+    "intent": "order_dosa",
+    "example": "Two dosa please",
+    "response": "👌 2 Masala Dosa ₹220 ya Paper Dosa ₹240? Batao kaunsa?"
+  },
+  {
+    "intent": "order_rice",
+    "example": "Fried rice available",
+    "response": "🍚 Yes! Veg Fried Rice ₹140. Hot and fresh! Order karein?"
+  },
+  {
+    "intent": "order_rice",
+    "example": "Jeera rice do",
+    "response": "🍛 Jeera Rice ₹100 - simple aur tasty! Sabzi ke saath perfect. Confirm?"
+  },
+  {
+    "intent": "order_rice",
+    "example": "Paneer rice bowl",
+    "response": "🍚 Paneer Rice Bowl ₹160 - filling aur delicious! Order karu?"
+  },
+  {
+    "intent": "order_rice",
+    "example": "I want khichdi",
+    "response": "🥘 Khichdi ₹80 - light and healthy! Curd ke saath best. Confirm?"
+  },
+  {
+    "intent": "order_rice",
+    "example": "Fried rice chahiye",
+    "response": "✅ Veg Fried Rice ₹140 ready karunga! Manchurian bhi add karu?"
+  },
+  {
+    "intent": "order_chinese",
+    "example": "Chinese khana hai",
+    "response": "🥢 Great! Humara Chinese menu:\n• Fried Rice ₹140\n• Noodles ₹130\n• Manchurian ₹150\n• Honey Chilli Potato ₹140\nKya order karein?"
+  },
+  {
+    "intent": "order_chinese",
+    "example": "Manchurian milega",
+    "response": "🥟 Haan! Dry ya Gravy? Dono ₹150 mein. Kaunsa pasand hai?"
+  },
+  {
+    "intent": "order_chinese",
+    "example": "Noodles chahiye",
+    "response": "🍜 Veg Noodles ₹130 - tasty! Dry ya gravy style? Batao!"
+  },
+  {
+    "intent": "order_chinese",
+    "example": "Honey chilli potato",
+    "response": "🥔 Honey Chilli Potato ₹140 - super crispy! Ek ya do plate?"
+  },
+  {
+    "intent": "order_chinese",
+    "example": "Noodles and manchurian combo",
+    "response": "🎉 Perfect combo! Noodles ₹130 + Manchurian ₹150 = ₹280. Confirm?"
+  },
+  {
+    "intent": "order_curry",
+    "example": "Dal tadka do",
+    "response": "🍲 Dal Tadka ₹120 - tasty aur healthy! Roti ya rice ke saath?"
+  },
+  {
+    "intent": "order_curry",
+    "example": "Chole curry",
+    "response": "🍛 Chole Curry ₹130 - spicy aur delicious! Bhature add karu?"
+  },
+  {
+    "intent": "order_curry",
+    "example": "Tamatar sabji",
+    "response": "🍅 Tamatar Sabji ₹110 - simple aur tasty! Roti ke saath perfect!"
+  },
+  {
+    "intent": "order_curry",
+    "example": "I want dal",
+    "response": "🥘 Dal Tadka ₹120 available hai - fresh and hot! Order karu?"
+  },
+  {
+    "intent": "order_curry",
+    "example": "What curry do you have",
+    "response": "🍲 Hamare paas hai:\n• Dal Tadka ₹120\n• Chole ₹130\n• Tamatar Sabji ₹110\nSabhi fresh! Kaunsa try karenge?"
+  },
+  {
+    "intent": "order_starter",
+    "example": "Paneer tikka hai",
+    "response": "🍢 Haan! Paneer Tikka ₹180 - smoky aur delicious! Starter ke liye best!"
+  },
+  {
+    "intent": "order_starter",
+    "example": "I want starters",
+    "response": "🎯 Starters menu:\n• Paneer Tikka ₹180\n• Honey Chilli Potato ₹140\n• Manchurian (Dry) ₹150\nKya order karein?"
+  },
+  {
+    "intent": "order_starter",
+    "example": "Tikka milega",
+    "response": "✅ Paneer Tikka ₹180 - grilled to perfection! Order confirm karu?"
+  },
+  {
+    "intent": "order_starter",
+    "example": "Give me paneer tikka",
+    "response": "🍢 Perfect choice! Paneer Tikka ₹180. Mint chutney ke saath. Ek plate?"
+  },
+  {
+    "intent": "order_idli_vada",
+    "example": "Idli vada hai",
+    "response": "🥞 Haan bilkul! Idli (2 pcs) ₹60 aur Vada (2 pcs) ₹70. Dono order karu?"
+  },
+  {
+    "intent": "order_idli_vada",
+    "example": "I want idli",
+    "response": "✅ Idli 2 pieces ₹60 - sambar aur chutney ke saath! Kitne order karein?"
+  },
+  {
+    "intent": "order_idli_vada",
+    "example": "Vada do",
+    "response": "🥟 Vada 2 pieces ₹70 - crispy! Sambar chahiye?"
+  },
+  {
+    "intent": "order_idli_vada",
+    "example": "Idli vada combo",
+    "response": "🎉 Great combo! Idli (2) ₹60 + Vada (2) ₹70 = ₹130. Confirm?"
+  },
+  {
+    "intent": "order_drinks",
+    "example": "Lassi hai",
+    "response": "🥤 Haan! Sweet Lassi ₹70 ya Mango Lassi ₹90. Kaunsa chahiye?"
+  },
+  {
+    "intent": "order_drinks",
+    "example": "Mango lassi do",
+    "response": "🥭 Mango Lassi ₹90 - thick aur creamy! Ek glass?"
+  },
+  {
+    "intent": "order_drinks",
+    "example": "What drinks available",
+    "response": "🍹 Drinks menu:\n• Sweet Lassi ₹70\n• Mango Lassi ₹90\n• Shrikhand ₹100\nSabhi chilled! Kya lenge?"
+  },
+  {
+    "intent": "order_drinks",
+    "example": "Shrikhand milega",
+    "response": "🍮 Haan! Shrikhand ₹100 - sweet aur delicious! Order karu?"
+  },
+  {
+    "intent": "order_drinks",
+    "example": "One sweet lassi",
+    "response": "✅ Sweet Lassi ₹70 - fresh and cool! Order confirmed?"
+  },
+  {
+    "intent": "ask_price",
+    "example": "Biryani ka rate kya hai",
+    "response": "💰 Veg Biryani ₹180 hai. Bahut tasty aur filling!"
+  },
+  {
+    "intent": "ask_price",
+    "example": "How much for thali",
+    "response": "💵 Punjabi Thali ₹150 aur Premium Veg Thali ₹220. Dono value for money!"
+  },
+  {
+    "intent": "ask_price",
+    "example": "Dosa kitne ka hai",
+    "response": "💰 Masala Dosa ₹110 aur Paper Dosa ₹120. Dono delicious!"
+  },
+  {
+    "intent": "ask_price",
+    "example": "Paneer tikka price",
+    "response": "💵 Paneer Tikka ₹180 - premium quality!"
+  },
+  {
+    "intent": "ask_price",
+    "example": "Dal tadka ka price",
+    "response": "💰 Dal Tadka ₹120 - fresh aur hot!"
+  },
+  {
+    "intent": "ask_quantity",
+    "example": "Thali mein kya kya aata hai",
+    "response": "🥘 Punjabi Thali mein: 2 Roti, Sabzi, Dal, Rice, Raita, Salad aur Pickle. Premium mein extra items bhi!"
+  },
+  {
+    "intent": "ask_quantity",
+    "example": "What comes in thali",
+    "response": "🍽️ Thali includes: Rotis, Curry, Dal, Rice, Raita, Salad, and Pickle. Full meal!"
+  },
+  {
+    "intent": "ask_quantity",
+    "example": "Idli kitne piece",
+    "response": "🥞 Idli 2 pieces aate hain sambar aur chutney ke saath!"
+  },
+  {
+    "intent": "ask_quantity",
+    "example": "How many rotis in thali",
+    "response": "🫓 Punjabi Thali mein 2 rotis. Premium mein 3 rotis milti hain!"
+  },
+  {
+    "intent": "ask_availability",
+    "example": "Paneer tikka available hai",
+    "response": "✅ Haan! Paneer Tikka ₹180 available hai. Order karein?"
+  },
+  {
+    "intent": "ask_availability",
+    "example": "Is biryani available now",
+    "response": "✅ Yes! Veg Biryani ₹180 fresh hai. Abhi order karu?"
+  },
+  {
+    "intent": "ask_availability",
+    "example": "Manchurian hai abhi",
+    "response": "✅ Bilkul! Manchurian ₹150 (Dry/Gravy) ready hai!"
+  },
+  {
+    "intent": "ask_availability",
+    "example": "Do you have lassi",
+    "response": "✅ Yes! Sweet Lassi ₹70 aur Mango Lassi ₹90 dono available!"
+  },
+  {
+    "intent": "combo_order",
+    "example": "Biryani aur raita",
+    "response": "🍚 Perfect combo! Veg Biryani ₹180. Raita complimentary hai! Order karu?"
+  },
+  {
+    "intent": "combo_order",
+    "example": "Dal tadka with rice",
+    "response": "🍛 Great combination! Dal Tadka ₹120 + Jeera Rice ₹100 = ₹220. Confirm?"
+  },
+  {
+    "intent": "combo_order",
+    "example": "Dosa aur idli dono",
+    "response": "🥞 South Indian combo! Dosa ₹110 + Idli ₹60 = ₹170. Order karu?"
+  },
+  {
+    "intent": "combo_order",
+    "example": "Noodles with manchurian",
+    "response": "🥢 Popular combo! Noodles ₹130 + Manchurian ₹150 = ₹280. Perfect!"
+  },
+  {
+    "intent": "combo_order",
+    "example": "Thali and lassi",
+    "response": "🥘 Complete meal! Punjabi Thali ₹150 + Sweet Lassi ₹70 = ₹220. Order?"
+  },
+  {
+    "intent": "modify_order",
+    "example": "Extra spicy chahiye",
+    "response": "🌶️ Sure! Extra spicy kar dunga. Koi aur changes?"
+  },
+  {
+    "intent": "modify_order",
+    "example": "Less oil please",
+    "response": "✅ Done! Less oil mein banaenge. Noted!"
+  },
+  {
+    "intent": "modify_order",
+    "example": "Bina onion ke",
+    "response": "🧅 No problem! Onion nahi dalenge. Kuch aur?"
+  },
+  {
+    "intent": "modify_order",
+    "example": "Make it medium spice",
+    "response": "✅ Medium spice level - perfect! Noted in order."
+  },
+  {
+    "intent": "modify_order",
+    "example": "Jain food hai",
+    "response": "🙏 Sure! Jain style mein banaenge - no onion, no garlic. Confirmed!"
+  },
+  {
+    "intent": "cancel_order",
+    "example": "Cancel my order",
+    "response": "❌ Sure, order cancel kar deta hu. Koi issue tha?"
+  },
+  {
+    "intent": "cancel_order",
+    "example": "Order nahi chahiye",
+    "response": "✅ No problem! Order cancel ho gaya. Kabhi aur order kariye!"
+  },
+  {
+    "intent": "cancel_order",
+    "example": "I want to cancel",
+    "response": "❌ Okay, cancelling order. Koi specific reason?"
+  },
+  {
+    "intent": "delivery_time",
+    "example": "Delivery kitne time mein",
+    "response": "⏱️ Delivery 30-35 minutes mein hogi. Location ke according thoda kam ya zyada ho sakta hai."
+  },
+  {
+    "intent": "delivery_time",
+    "example": "How long for delivery",
+    "response": "🚚 Delivery time is 30-35 minutes. Fast delivery guaranteed!"
+  },
+  {
+    "intent": "delivery_time",
+    "example": "Jaldi mil jayega",
+    "response": "⚡ Haan! 30 minutes mein deliver kar denge. Express service!"
+  },
+  {
+    "intent": "delivery_time",
+    "example": "When will food arrive",
+    "response": "🕐 Food 30-35 minutes mein aa jayega. Fresh aur hot!"
+  },
+  {
+    "intent": "payment_method",
+    "example": "Payment kaise karu",
+    "response": "💳 Payment options:\n• Cash on Delivery\n• Online - UPI/Card/Wallet\nKaunsa prefer karenge?"
+  },
+  {
+    "intent": "payment_method",
+    "example": "COD available hai",
+    "response": "✅ Haan! Cash on Delivery available hai. Order confirm karu?"
+  },
+  {
+    "intent": "payment_method",
+    "example": "Can I pay online",
+    "response": "💳 Yes! UPI, Card, Wallet - sab accept karte hain. Order karein?"
+  },
+  {
+    "intent": "payment_method",
+    "example": "UPI se payment karunga",
+    "response": "📱 Perfect! UPI payment accepted. Delivery par link milega!"
+  },
+  {
+    "intent": "track_order",
+    "example": "Order track karna hai",
+    "response": "📦 Sure! Aapka order ID batao, turant track kar dunga!"
+  },
+  {
+    "intent": "track_order",
+    "example": "Where is my food",
+    "response": "🚚 Batao order ID, main location check karta hu!"
+  },
+  {
+    "intent": "track_order",
+    "example": "Food kaha hai",
+    "response": "📍 Order ID do, abhi status batata hu!"
+  },
+  {
+    "intent": "recommendation",
+    "example": "Kya order karu",
+    "response": "⭐ Popular items:\n• Veg Biryani ₹180\n• Punjabi Thali ₹150\n• Paneer Tikka ₹180\n• Masala Dosa ₹110\nYe sabse zyada order hote hain!"
+  },
+  {
+    "intent": "recommendation",
+    "example": "What's your best dish",
+    "response": "🌟 Hamari specialty:\n• Premium Veg Thali ₹220 - full meal!\n• Veg Biryani ₹180 - super tasty!\nDono try kariye!"
+  },
+  {
+    "intent": "recommendation",
+    "example": "Kuch recommend karo",
+    "response": "👨‍🍳 Chef's special:\n• Punjabi Thali ₹150 - value for money!\n• Paneer Tikka ₹180 - must try!\nOrder karein?"
+  },
+  {
+    "intent": "recommendation",
+    "example": "What's popular",
+    "response": "🔥 Today's trending:\n• Veg Biryani ₹180\n• Masala Dosa ₹110\n• Manchurian ₹150\nSab fresh!"
+  },
+  {
+    "intent": "special_request",
+    "example": "Extra chatni do",
+    "response": "✅ Sure! Extra chutney pack kar denge. Free of cost!"
+  },
+  {
+    "intent": "special_request",
+    "example": "Plates and spoons chahiye",
+    "response": "🍽️ Done! Disposable plates aur spoons de denge!"
+  },
+  {
+    "intent": "special_request",
+    "example": "Pack it well",
+    "response": "📦 Bilkul! Proper packing karenge, leak-proof containers!"
+  },
+  {
+    "intent": "special_request",
+    "example": "Birthday hai special bana do",
+    "response": "🎂 Happy Birthday! Special arrangement kar denge. Name batao?"
+  },
+  {
+    "intent": "complaint",
+    "example": "Food quality achha nahi tha",
+    "response": "😔 Bahut sorry! Turant replacement bhej raha hu. Aur koi issue?"
+  },
+  {
+    "intent": "complaint",
+    "example": "Late delivery hua",
+    "response": "🙏 Apologies for delay! Next order par discount denge. Sorry!"
+  },
+  {
+    "intent": "complaint",
+    "example": "Item missing hai",
+    "response": "😔 Very sorry! Missing item abhi deliver kar denge. Free!"
+  },
+  {
+    "intent": "goodbye",
+    "example": "Thank you",
+    "response": "🙏 Welcome! Order jaldi pahuchega. Enjoy your meal!"
+  },
+  {
+    "intent": "goodbye",
+    "example": "Dhanyavaad",
+    "response": "🙏 Aapka swagat hai! Phir se order kijiye. Namaste!"
+  },
+  {
+    "intent": "goodbye",
+    "example": "Bye",
+    "response": "👋 Bye! Khana pasand aaye to rating jaroor dijiye!"
+  },
+  {
+    "intent": "goodbye",
+    "example": "That's all",
+    "response": "✅ Perfect! Order confirm hai. Delivery 30 min mein!"
+  },
+  {
+    "intent": "show_cart",
+    "example": "Show cart",
+    "response": "🛒 Cart dekhne ke liye: Type 'show cart' command works!"
+  },
+  {
+    "intent": "show_cart",
+    "example": "Cart",
+    "response": "🛒 Aapka cart! Type 'cart' to view."
+  },
+  {
+    "intent": "show_cart",
+    "example": "Mera order",
+    "response": "🛒 Order details! Type 'mera order' works."
+  },
+  {
+    "intent": "show_cart",
+    "example": "Kya order kiya",
+    "response": "🛒 Aapne ye order kiya!"
+  },
+  {
+    "intent": "show_cart",
+    "example": "Cart dikhaona",
+    "response": "🛒 Cart dikha raha hun!"
+  },
+  {
+    "intent": "confirm_order",
+    "example": "Confirm order",
+    "response": "✅ Order confirmed! ID: ORD..."
+  },
+  {
+    "intent": "confirm_order",
+    "example": "Order confirm karo",
+    "response": "✅ Order confirm ho gaya!"
+  },
+  {
+    "intent": "confirm_order",
+    "example": "Place order",
+    "response": "✅ Order placed successfully!"
+  },
+  {
+    "intent": "clear_cart",
+    "example": "Clear cart",
+    "response": "🗑️ Cart khali ho gaya!"
+  },
+  {
+    "intent": "clear_cart",
+    "example": "Cart khali karo",
+    "response": "🗑️ Cart cleared!"
+  }
+]
