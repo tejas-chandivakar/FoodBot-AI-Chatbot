@@ -4,7 +4,8 @@ An AI-powered smart restaurant chatbot developed using **Rasa NLP**, **Python**,
 
 
 ---
-<img width="1693" height="929" alt="ChatGPT Image Jun 14, 2026, 01_30_06 PM" src="https://github.com/user-attachments/assets/2585a646-e95c-4a36-b558-775059c349ca" />
+<img width="1693" height="929" alt="ChatGPT Image Jun 14, 2026, 07_24_59 PM" src="https://github.com/user-attachments/assets/d3f2945c-d8bc-4d26-b202-3806e57e8c35" />
+
 
 ## 📌 Project Overview
 
