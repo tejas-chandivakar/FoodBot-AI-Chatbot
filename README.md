@@ -4,6 +4,9 @@ An AI-powered smart restaurant chatbot developed using **Rasa NLP**, **Python**,
 
 ---
 
+
+<img width="1693" height="929" alt="ChatGPT Image Jun 14, 2026, 01_30_06 PM" src="https://github.com/user-attachments/assets/2585a646-e95c-4a36-b558-775059c349ca" />
+
 ## 📌 Project Overview
 
 FoodBot is designed to provide an intelligent restaurant automation experience where users can interact naturally with the chatbot for ordering food, managing carts, tracking orders, viewing order history, and getting customer support assistance.
